@@ -4,14 +4,15 @@ import produce from 'immer';
 import { createInitialTerminal, Cursor, Prompt, Terminal } from '../domain';
 
 import type { Store } from './terminal.app';
+import { createId } from '../utils';
 
-interface AppStore {
+type AppStore = {
     cursor: Cursor;
     terminal: Terminal;
-    setCursorPosition: Store['setCursorPosition'];
-    updatePrompt: Store['updatePrompt'];
-    addRow: Store['addRow'];
-}
+} & Pick<
+    Store,
+    'setCursorPosition' | 'updatePrompt' | 'addRow' | 'removeCharacter'
+>;
 
 export const useStore = create<AppStore>((set) => ({
     cursor: {
@@ -34,10 +35,25 @@ export const useStore = create<AppStore>((set) => ({
                 const index = state.terminal.rows.length - 1;
                 const newPrompt = state.terminal.rows[index].content as Prompt;
 
-                newPrompt.line.content.splice(columnIndex, 0, newChar);
+                newPrompt.line.content.splice(columnIndex, 0, {
+                    id: createId(),
+                    data: newChar,
+                });
 
                 state.terminal.rows[index].content = newPrompt;
             })
         ),
     addRow: () => {},
+    removeCharacter: (columnIndex) =>
+        set(
+            produce<AppStore>((state) => {
+                // last row should always be a prompt, I could also invariant here
+                const index = state.terminal.rows.length - 1;
+                const newPrompt = state.terminal.rows[index].content as Prompt;
+
+                newPrompt.line.content.splice(columnIndex, 1);
+
+                state.terminal.rows[index].content = newPrompt;
+            })
+        ),
 }));

@@ -1,5 +1,6 @@
 import {
     Char,
+    CharData,
     ColumnIndex,
     createPrompt,
     Cursor,
@@ -12,20 +13,19 @@ export interface Store {
     cursor: Cursor;
     prompt: Prompt;
     setCursorPosition: (newColumn: ColumnIndex) => void;
-    updatePrompt: (newChar: Char, columnIndex: ColumnIndex) => void;
+    updatePrompt: (newChar: CharData, columnIndex: ColumnIndex) => void;
     addRow: (row: Result | Prompt) => void;
+    removeCharacter: (columnIndex: ColumnIndex) => void;
 }
 
 interface Parser {
     parse: (prompt: Prompt) => Result;
 }
 
-export const updatePrompt = (newChar: Char, deps: { store: Store }) => {
+export const updatePrompt = (newChar: CharData, deps: { store: Store }) => {
     const { store } = deps;
 
     const cursorPosition = store.cursor.position;
-
-    console.log('cursorPosition', cursorPosition);
 
     store.updatePrompt(newChar, cursorPosition.column);
     store.setCursorPosition(cursorPosition.column + 1);
@@ -40,7 +40,16 @@ export const submitPrompt = (deps: { store: Store; parser: Parser }) => {
     store.addRow(createPrompt());
 };
 
-export const removeCharacter = () => {};
+export const removeCharacter = (deps: {
+    store: Pick<Store, 'removeCharacter' | 'cursor' | 'setCursorPosition'>;
+}) => {
+    const { store } = deps;
+
+    const cursorPosition = store.cursor.position;
+
+    store.removeCharacter(cursorPosition.column);
+    store.setCursorPosition(cursorPosition.column - 1);
+};
 
 export const moveCursor = () => {};
 

@@ -4,10 +4,11 @@
 
 import { act, renderHook } from '@testing-library/react';
 import { describe, it, expect, beforeEach } from 'vitest';
-import type { Prompt } from '../../domain';
 
+import type { Prompt } from '../../domain';
+import { resetId } from '../../utils';
 import { useStore } from '../store';
-import { useUpdatePrompt } from '../terminal.impl';
+import { useRemoveCharacter, useUpdatePrompt } from '../terminal.impl';
 
 const length = useStore.getState().terminal.rows.length;
 const getPrompt = () =>
@@ -17,6 +18,7 @@ const initialStoreState = useStore.getState();
 
 beforeEach(() => {
     useStore.setState(initialStoreState, true);
+    resetId();
 });
 
 describe('updatePrompt', () => {
@@ -29,7 +31,11 @@ describe('updatePrompt', () => {
         });
         expect(getPrompt()).toMatchObject({
             line: {
-                content: [''],
+                content: [
+                    {
+                        data: '',
+                    },
+                ],
             },
         });
 
@@ -41,7 +47,14 @@ describe('updatePrompt', () => {
         });
         expect(getPrompt()).toMatchObject({
             line: {
-                content: ['a', ''],
+                content: [
+                    {
+                        data: 'a',
+                    },
+                    {
+                        data: '',
+                    },
+                ],
             },
         });
     });
@@ -59,8 +72,41 @@ describe('updatePrompt', () => {
         });
         expect(getPrompt()).toMatchObject({
             line: {
-                content: ['a', 'b', 'c', ''],
+                content: [
+                    {
+                        data: 'a',
+                    },
+                    {
+                        data: 'b',
+                    },
+                    {
+                        data: 'c',
+                    },
+                    {
+                        data: '',
+                    },
+                ],
             },
         });
+    });
+});
+
+describe('removeCharacter', () => {
+    it('does a thing', () => {
+        const { result: removeCharacterRef } = renderHook(() =>
+            useRemoveCharacter()
+        );
+        useStore.setState({
+            cursor: {
+                position: {
+                    row: 0,
+                    column: 1,
+                },
+            },
+        });
+
+        act(() => removeCharacterRef.current());
+
+        expect(true);
     });
 });

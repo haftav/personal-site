@@ -1,3 +1,5 @@
+import { createId } from '../utils';
+
 export interface Terminal {
     rows: TerminalRow[];
 }
@@ -22,7 +24,13 @@ interface Line {
     content: Char[];
 }
 
-export type Char = string;
+export interface Char {
+    id: CharId;
+    data: CharData;
+}
+
+type CharId = string;
+export type CharData = string;
 
 export type PromptString = string;
 export type ParsedLine = string;
@@ -55,7 +63,7 @@ export function createRow(
 export function createPrompt(): Prompt {
     return {
         line: {
-            content: [''],
+            content: [createChar()],
         },
     };
 }
@@ -69,21 +77,25 @@ export function createResult(parsedLines: ParsedLine[]): Result {
     };
 }
 
+function createChar(char: string = '') {
+    return {
+        id: createId(),
+        data: char,
+    };
+}
 // TODO: extract to utils module
 function convertParsedLinesToChars(parsedLine: ParsedLine): Char[] {
     if (!parsedLine.length) {
-        return [''];
+        return [createChar()];
     }
 
     const output: Char[] = [];
 
     for (let i = 0; i < parsedLine.length; i++) {
-        const currentChar = parsedLine[i];
-
-        if (currentChar === ' ') {
-            output.push('');
+        if (parsedLine[i] === ' ') {
+            output.push(createChar());
         } else {
-            output.push(currentChar);
+            output.push(createChar(parsedLine[i]));
         }
     }
 

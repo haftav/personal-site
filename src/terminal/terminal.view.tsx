@@ -1,30 +1,32 @@
 import * as React from 'react';
 import { isPrompt, Result, Prompt, TerminalRow, Char } from '../domain';
 import { useStore } from './store';
-import { useUpdatePrompt } from './terminal.impl';
+import { useUpdatePrompt, useRemoveCharacter } from './terminal.impl';
 
 const columnWidth = 10;
 const rowHeight = 20;
 
 function useHandleKeyPress() {
     const updatePrompt = useUpdatePrompt();
+    const removeCharacter = useRemoveCharacter();
 
     React.useEffect(() => {
         const listener = (e: KeyboardEvent) => {
-            console.log('key', e.key);
-
             const key = e.key.toLowerCase();
+
+            const isBackspace = key === 'backspace';
+
+            if (isBackspace) {
+                console.log('removing');
+                removeCharacter();
+                return;
+            }
 
             if (key.length !== 1) {
                 return;
             }
 
-            const isLetter = key >= 'a' && key <= 'z';
-            const isNumber = key >= '0' && key <= '9';
-
-            if (isLetter || isNumber) {
-                updatePrompt(e.key);
-            }
+            updatePrompt(e.key);
         };
 
         document.addEventListener('keydown', listener);
@@ -32,7 +34,7 @@ function useHandleKeyPress() {
         return () => {
             document.removeEventListener('keydown', listener);
         };
-    }, [updatePrompt]);
+    }, [updatePrompt, removeCharacter]);
 }
 
 export const Terminal = () => {
@@ -94,7 +96,7 @@ export const PromptRow = ({ prompt }: { prompt: Prompt }) => {
 const Char = ({ char }: { char: Char }) => {
     return (
         <span style={{ display: 'inline-block', width: columnWidth }}>
-            {char}
+            {char.data}
         </span>
     );
 };

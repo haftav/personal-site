@@ -1,8 +1,8 @@
 import shallow from 'zustand/shallow';
 
-import type { Char, Prompt } from '../domain';
+import type { CharData, Prompt } from '../domain';
 import { useStore } from './store';
-import { updatePrompt } from './terminal.app';
+import { removeCharacter, updatePrompt } from './terminal.app';
 
 export function useUpdatePrompt() {
     const store = useStore(
@@ -13,12 +13,29 @@ export function useUpdatePrompt() {
             cursor: store.cursor,
             setCursorPosition: store.setCursorPosition,
             addRow: store.addRow,
+            removeCharacter: store.removeCharacter, // TODO: this is gross, need to figure out better solution
         }),
         shallow
     );
 
-    return (newChar: Char) =>
+    return (newChar: CharData) =>
         updatePrompt(newChar, {
+            store,
+        });
+}
+
+export function useRemoveCharacter() {
+    const store = useStore(
+        (store) => ({
+            cursor: store.cursor,
+            setCursorPosition: store.setCursorPosition,
+            removeCharacter: store.removeCharacter, // TODO: this is gross, need to figure out better solution
+        }),
+        shallow
+    );
+
+    return () =>
+        removeCharacter({
             store,
         });
 }
