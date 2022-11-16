@@ -1,59 +1,52 @@
-import * as React from 'react';
-import { isPrompt, Result, Prompt, TerminalRow, Char } from '../domain';
-import { useStore } from './store';
-import { useUpdatePrompt, useRemoveCharacter } from './terminal.impl';
+import { isPrompt, Result, Prompt, TerminalRow, Char } from '../../domain';
+import { useStore } from '../store';
+
+import { useHandleKeyPress, useTerminalSize } from './hooks';
 
 const columnWidth = 10;
 const rowHeight = 20;
 
-function useHandleKeyPress() {
-    const updatePrompt = useUpdatePrompt();
-    const removeCharacter = useRemoveCharacter();
-
-    React.useEffect(() => {
-        const listener = (e: KeyboardEvent) => {
-            const key = e.key.toLowerCase();
-
-            const isBackspace = key === 'backspace';
-
-            if (isBackspace) {
-                console.log('removing');
-                removeCharacter();
-                return;
-            }
-
-            if (key.length !== 1) {
-                return;
-            }
-
-            updatePrompt(e.key);
-        };
-
-        document.addEventListener('keydown', listener);
-
-        return () => {
-            document.removeEventListener('keydown', listener);
-        };
-    }, [updatePrompt, removeCharacter]);
-}
-
 export const Terminal = () => {
     useHandleKeyPress();
+
+    const { ref, width } = useTerminalSize();
 
     const rows = useStore((store) => store.terminal.rows);
 
     return (
-        <div style={{ position: 'absolute', width: '100vw', height: '100vh' }}>
+        <div
+            style={{ position: 'absolute', width: '100vw', height: '100vh' }}
+            ref={ref}
+        >
             {rows.map((row) => (
                 <Row row={row} key={row.index} />
             ))}
-            <Cursor />
+            <Cursor terminalWidth={width} />
         </div>
     );
 };
 
-export const Cursor = () => {
+interface CursorProps {
+    terminalWidth: number;
+}
+
+export const Cursor = (props: CursorProps) => {
+    const { terminalWidth } = props;
+
     const position = useStore((store) => store.cursor.position);
+
+    console.log('terminalWidth', terminalWidth);
+    console.log('column', position.column);
+
+    const terminalWidthInGrid = Math.floor(terminalWidth / columnWidth);
+
+    const correctedLeft =
+        (position.column % Math.floor(terminalWidth / columnWidth)) *
+        columnWidth;
+    const correctedTop =
+        Math.floor(position.column / terminalWidthInGrid) * rowHeight;
+
+    console.log('left', correctedLeft);
 
     return (
         <div
@@ -61,8 +54,8 @@ export const Cursor = () => {
                 width: columnWidth,
                 height: rowHeight,
                 position: 'absolute',
-                top: 0,
-                left: position.column * columnWidth,
+                top: correctedTop,
+                left: correctedLeft,
                 backgroundColor: 'white',
             }}
         />
@@ -95,7 +88,13 @@ export const PromptRow = ({ prompt }: { prompt: Prompt }) => {
 
 const Char = ({ char }: { char: Char }) => {
     return (
-        <span style={{ display: 'inline-block', width: columnWidth }}>
+        <span
+            style={{
+                display: 'inline-block',
+                width: columnWidth,
+                lineHeight: '20px',
+            }}
+        >
             {char.data}
         </span>
     );
