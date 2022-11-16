@@ -34,19 +34,22 @@ export const Cursor = (props: CursorProps) => {
     const { terminalWidth } = props;
 
     const position = useStore((store) => store.cursor.position);
+    // TODO: turn this into a selector
+    const prompt = useStore((store) => store.getPrompt());
 
-    console.log('terminalWidth', terminalWidth);
-    console.log('column', position.column);
+    const prefixOffset = prompt.prefix.length;
+    console.log('offset', prefixOffset);
 
-    const terminalWidthInGrid = Math.floor(terminalWidth / columnWidth);
+    const column = position.column + prefixOffset;
+
+    const terminalWidthInGridDimensions = Math.floor(
+        terminalWidth / columnWidth
+    );
 
     const correctedLeft =
-        (position.column % Math.floor(terminalWidth / columnWidth)) *
-        columnWidth;
+        (column % terminalWidthInGridDimensions) * columnWidth;
     const correctedTop =
-        Math.floor(position.column / terminalWidthInGrid) * rowHeight;
-
-    console.log('left', correctedLeft);
+        Math.floor(column / terminalWidthInGridDimensions) * rowHeight;
 
     return (
         <div
@@ -79,8 +82,20 @@ export const ResultRow = ({ result }: { result: Result }) => {
 export const PromptRow = ({ prompt }: { prompt: Prompt }) => {
     return (
         <div>
+            {prompt.prefix.split('').map((char, index) => (
+                <span
+                    key={index}
+                    style={{
+                        display: 'inline-block',
+                        width: columnWidth,
+                        lineHeight: '20px',
+                    }}
+                >
+                    {char}
+                </span>
+            ))}
             {prompt.line.content.map((char) => (
-                <Char char={char} />
+                <Char char={char} key={char.id} />
             ))}
         </div>
     );

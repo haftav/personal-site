@@ -9,12 +9,13 @@ import { createId } from '../utils';
 type AppStore = {
     cursor: Cursor;
     terminal: Terminal;
+    getPrompt: () => Prompt;
 } & Pick<
     Store,
     'setCursorPosition' | 'updatePrompt' | 'addRow' | 'removeCharacter'
 >;
 
-export const useStore = create<AppStore>((set) => ({
+export const useStore = create<AppStore>((set, get) => ({
     cursor: {
         position: {
             row: 0,
@@ -56,4 +57,10 @@ export const useStore = create<AppStore>((set) => ({
                 state.terminal.rows[index].content = newPrompt;
             })
         ),
+    getPrompt: () => {
+        const index = get().terminal.rows.length - 1;
+        const prompt = get().terminal.rows[index].content as Prompt;
+
+        return prompt;
+    },
 }));

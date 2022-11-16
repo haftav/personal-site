@@ -14,7 +14,10 @@ export type ColumnIndex = number;
 
 export interface Prompt {
     line: Line;
+    prefix: PromptPrefix;
 }
+
+type PromptPrefix = string;
 
 export interface Result {
     lines: Line[];
@@ -65,6 +68,7 @@ export function createPrompt(): Prompt {
         line: {
             content: [createChar()],
         },
+        prefix: '~ ',
     };
 }
 
