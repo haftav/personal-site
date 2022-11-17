@@ -5,7 +5,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { describe, it, expect, beforeEach } from 'vitest';
 
-import type { Prompt } from '../../domain';
+import { createInitialTerminal, Prompt } from '../../domain';
 import { resetId } from '../../utils';
 import { useStore } from '../store';
 import { useRemoveCharacter, useUpdatePrompt } from '../terminal.impl';
@@ -92,10 +92,26 @@ describe('updatePrompt', () => {
 });
 
 describe('removeCharacter', () => {
-    it('does a thing', () => {
-        const { result: removeCharacterRef } = renderHook(() =>
-            useRemoveCharacter()
-        );
+    it('Correctly removes character', () => {
+        const newTerminal = createInitialTerminal();
+
+        newTerminal.rows[0].content = {
+            line: {
+                content: [
+                    {
+                        data: 'a',
+                    },
+                    {
+                        data: '',
+                    },
+                ],
+            },
+        } as Prompt;
+
+        useStore.setState({
+            terminal: newTerminal,
+        });
+
         useStore.setState({
             cursor: {
                 position: {
@@ -105,8 +121,63 @@ describe('removeCharacter', () => {
             },
         });
 
+        const { result: removeCharacterRef } = renderHook(() =>
+            useRemoveCharacter()
+        );
+
         act(() => removeCharacterRef.current());
 
-        expect(true);
+        expect(getPrompt()).toMatchObject({
+            line: {
+                content: [
+                    {
+                        data: 'a',
+                    },
+                ],
+            },
+        });
+    });
+
+    it("Doesn't let you remove past prompt start", () => {
+        const newTerminal = createInitialTerminal();
+
+        newTerminal.rows[0].content = {
+            line: {
+                content: [
+                    {
+                        data: '',
+                    },
+                ],
+            },
+        } as Prompt;
+
+        useStore.setState({
+            terminal: newTerminal,
+        });
+
+        useStore.setState({
+            cursor: {
+                position: {
+                    row: 0,
+                    column: 0,
+                },
+            },
+        });
+
+        const { result: removeCharacterRef } = renderHook(() =>
+            useRemoveCharacter()
+        );
+
+        act(() => removeCharacterRef.current());
+
+        expect(getPrompt()).toMatchObject({
+            line: {
+                content: [
+                    {
+                        data: '',
+                    },
+                ],
+            },
+        });
     });
 });

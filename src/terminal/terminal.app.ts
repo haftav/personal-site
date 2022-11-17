@@ -47,6 +47,10 @@ export const removeCharacter = (deps: {
 
     const cursorPosition = store.cursor.position;
 
+    if (cursorPosition.column === 0) {
+        return;
+    }
+
     store.removeCharacter(cursorPosition.column);
     store.setCursorPosition(cursorPosition.column - 1);
 };
