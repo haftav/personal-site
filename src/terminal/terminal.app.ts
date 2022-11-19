@@ -2,16 +2,22 @@ import {
     Char,
     CharData,
     ColumnIndex,
+    Command,
+    convertPromptToPromptString,
     createPrompt,
+    createRow,
     Cursor,
     CursorPosition,
+    getPrompt,
     Prompt,
+    PromptString,
     Result,
+    Terminal,
 } from '../domain';
 
 export interface Store {
+    terminal: Terminal;
     cursor: Cursor;
-    prompt: Prompt;
     setCursorPosition: (newColumn: ColumnIndex) => void;
     updatePrompt: (newChar: CharData, columnIndex: ColumnIndex) => void;
     addRow: (row: Result | Prompt) => void;
@@ -19,7 +25,11 @@ export interface Store {
 }
 
 interface Parser {
-    parse: (prompt: Prompt) => Result;
+    parse: (promptString: PromptString) => Command;
+}
+
+interface CommandHandler {
+    handleCommand: (command: Command) => Result;
 }
 
 export const updatePrompt = (newChar: CharData, deps: { store: Store }) => {
@@ -31,10 +41,24 @@ export const updatePrompt = (newChar: CharData, deps: { store: Store }) => {
     store.setCursorPosition(cursorPosition.column + 1);
 };
 
-export const submitPrompt = (deps: { store: Store; parser: Parser }) => {
-    const { store, parser } = deps;
-    const prompt = store.prompt;
-    const result = parser.parse(prompt);
+export const submitPrompt = (deps: {
+    store: Store;
+    parser: Parser;
+    commandHandler: CommandHandler;
+}) => {
+    const { store, parser, commandHandler } = deps;
+
+    const prompt = getPrompt(store.terminal);
+
+    const promptString = convertPromptToPromptString(prompt);
+
+    if (!promptString) {
+        store.addRow(createPrompt());
+        return;
+    }
+
+    const command = parser.parse(promptString);
+    const result = commandHandler.handleCommand(command);
 
     store.addRow(result);
     store.addRow(createPrompt());

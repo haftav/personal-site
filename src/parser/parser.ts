@@ -1,44 +1,21 @@
-import type { Prompt, PromptString, ParsedLine } from '../domain';
+// TODO: this needs to parse Prompt interface and output Command result
+import type { Prompt, PromptString, ParsedLine, Command } from '../domain';
 
-type HandlerFactory = (command: Command) => CommandHandler;
-type Command = string;
-interface CommandHandler {
-    handleCommand: () => ParsedLine[];
+const whitespaceChars = new Set<string>();
+whitespaceChars.add(' ');
+
+export function parse(promptString: PromptString): Command {
+    // first element is command, following are args or flags
+    const [name, ...rest] = promptString.split(' ');
+
+    return {
+        name,
+        flags: [],
+        args: [],
+    };
+    // flags can take the form -flagName (for single characters) or--flagName [flagData] or --flagName=[flagData] (for multi character flag names)
 }
 
-function whoAmiHandler() {
-    return ["I don't know, who are you?"];
-}
+function getFlags() {}
 
-function handleCommand(command: Command) {
-    if (!command) {
-        throw new Error();
-    }
-
-    if (command === 'whoami') {
-        return whoAmiHandler();
-    } else {
-        return [`command not found: ${command}`];
-    }
-}
-
-export function parse(promptString: PromptString): ParsedLine[] {
-    const command = getCommand(promptString);
-
-    return handleCommand(command);
-}
-
-// TODO: move to utils module
-function convertCharListToString(prompt: Prompt) {
-    return prompt.line.content.join('').trim();
-}
-
-function getCommand(lineString: string) {
-    const splitLine = lineString.split(' ');
-
-    if (!splitLine[0]) {
-        return '';
-    }
-
-    return splitLine[0];
-}
+function getArgs() {}

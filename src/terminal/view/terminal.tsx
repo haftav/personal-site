@@ -34,13 +34,14 @@ export const Cursor = (props: CursorProps) => {
     const { terminalWidth } = props;
 
     const position = useStore((store) => store.cursor.position);
+    console.log(position);
     // TODO: turn this into a selector
     const prompt = useStore((store) => store.getPrompt());
 
     const prefixOffset = prompt.prefix.length;
-    console.log('offset', prefixOffset);
 
     const column = position.column + prefixOffset;
+    const row = position.row;
 
     const terminalWidthInGridDimensions = Math.floor(
         terminalWidth / columnWidth
@@ -49,6 +50,7 @@ export const Cursor = (props: CursorProps) => {
     const correctedLeft =
         (column % terminalWidthInGridDimensions) * columnWidth;
     const correctedTop =
+        row * rowHeight +
         Math.floor(column / terminalWidthInGridDimensions) * rowHeight;
 
     return (
@@ -76,7 +78,13 @@ export const Row = ({ row }: { row: TerminalRow }) => {
 };
 
 export const ResultRow = ({ result }: { result: Result }) => {
-    return <div>{JSON.stringify(result)}</div>;
+    return (
+        <div>
+            {result.lines.map((line) =>
+                line.content.map((char) => <Char char={char} key={char.id} />)
+            )}
+        </div>
+    );
 };
 
 export const PromptRow = ({ prompt }: { prompt: Prompt }) => {

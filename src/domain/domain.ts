@@ -31,17 +31,25 @@ export interface Char {
     id: CharId;
     data: CharData;
 }
-
 type CharId = string;
 export type CharData = string;
 
 export type PromptString = string;
+
+export interface Command {
+    name: CommandName;
+    flags: Flag[];
+    args: Arg[];
+}
+type CommandName = string;
+type Flag = string;
+type Arg = string;
+
 export type ParsedLine = string;
 
 export interface Cursor {
     position: CursorPosition;
 }
-
 export interface CursorPosition {
     row: RowIndex;
     column: ColumnIndex;
@@ -81,13 +89,40 @@ export function createResult(parsedLines: ParsedLine[]): Result {
     };
 }
 
-function createChar(char: string = '') {
+export function createChar(char: string = '') {
     return {
         id: createId(),
         data: char,
     };
 }
-// TODO: extract to utils module
+
+const whitespace = new Set<string>();
+whitespace.add(' ');
+
+export function convertPromptToPromptString(prompt: Prompt): PromptString {
+    const chars = prompt.line.content;
+
+    let output = '';
+
+    let prevChar = null;
+
+    for (let i = 0; i < chars.length; i++) {
+        const char = chars[i].data;
+
+        if (whitespace.has(char)) {
+            if (prevChar !== null && !whitespace.has(prevChar)) {
+                output += char;
+            }
+        } else {
+            output += char;
+        }
+
+        prevChar = char;
+    }
+
+    return output.trim();
+}
+
 function convertParsedLinesToChars(parsedLine: ParsedLine): Char[] {
     if (!parsedLine.length) {
         return [createChar()];
@@ -120,4 +155,24 @@ export function isResult(content: Prompt | Result): content is Result {
     }
 
     return false;
+}
+
+export function getPrompt(terminal: Terminal): Prompt {
+    const index = terminal.rows.length - 1;
+    const prompt = terminal.rows[index].content;
+
+    if (!isPrompt(prompt)) {
+        throw new Error('Last row in terminal must always be a prompt.');
+    }
+
+    return prompt;
+}
+
+/*
+ * Note - mutates terminal argument, use wisely (I should probably make this immutable)
+ */
+export function setPrompt(prompt: Prompt, terminal: Terminal): void {
+    const index = terminal.rows.length - 1;
+
+    terminal.rows[index].content = prompt;
 }

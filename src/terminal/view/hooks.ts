@@ -1,6 +1,10 @@
 import * as React from 'react';
 
-import { useUpdatePrompt, useRemoveCharacter } from '../terminal.impl';
+import {
+    useUpdatePrompt,
+    useRemoveCharacter,
+    useSubmitPrompt,
+} from '../terminal.impl';
 
 interface Dimensions {
     width: number;
@@ -51,15 +55,21 @@ export function useTerminalSize() {
 export function useHandleKeyPress() {
     const updatePrompt = useUpdatePrompt();
     const removeCharacter = useRemoveCharacter();
+    const submitPrompt = useSubmitPrompt();
 
     React.useEffect(() => {
         const listener = (e: KeyboardEvent) => {
             const key = e.key.toLowerCase();
 
+            const isEnter = key === 'enter';
             const isBackspace = key === 'backspace';
 
+            if (isEnter) {
+                submitPrompt();
+                return;
+            }
+
             if (isBackspace) {
-                console.log('removing');
                 removeCharacter();
                 return;
             }
@@ -76,5 +86,5 @@ export function useHandleKeyPress() {
         return () => {
             document.removeEventListener('keydown', listener);
         };
-    }, [updatePrompt, removeCharacter]);
+    }, [updatePrompt, removeCharacter, submitPrompt]);
 }

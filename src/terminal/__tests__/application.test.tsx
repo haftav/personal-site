@@ -3,12 +3,22 @@
  */
 
 import { act, renderHook } from '@testing-library/react';
+import { useState } from 'react';
 import { describe, it, expect, beforeEach } from 'vitest';
 
-import { createInitialTerminal, Prompt } from '../../domain';
+import {
+    createInitialTerminal,
+    Prompt,
+    isPrompt,
+    isResult,
+} from '../../domain';
 import { resetId } from '../../utils';
 import { useStore } from '../store';
-import { useRemoveCharacter, useUpdatePrompt } from '../terminal.impl';
+import {
+    useRemoveCharacter,
+    useUpdatePrompt,
+    useSubmitPrompt,
+} from '../terminal.impl';
 
 const length = useStore.getState().terminal.rows.length;
 const getPrompt = () =>
@@ -179,5 +189,75 @@ describe('removeCharacter', () => {
                 ],
             },
         });
+    });
+});
+
+describe('submitPrompt', () => {
+    it('Adds new prompt if empty prompt submitted', () => {
+        expect(useStore.getState().terminal.rows.length).toBe(1);
+
+        const { result: submitPromptRef } = renderHook(() => useSubmitPrompt());
+
+        act(() => submitPromptRef.current());
+
+        const rows = useStore.getState().terminal.rows;
+
+        expect(rows.length).toBe(2);
+        const lastIndex = rows.length - 1;
+        const secondToLastIndex = rows.length - 2;
+        expect(isPrompt(rows[lastIndex].content)).toBeTruthy();
+        expect(isPrompt(rows[secondToLastIndex].content)).toBeTruthy();
+    });
+
+    it('Adds result + prompt when command entered', () => {
+        const newTerminal = createInitialTerminal();
+
+        newTerminal.rows[0].content = {
+            line: {
+                content: [
+                    {
+                        data: 'p',
+                    },
+                    {
+                        data: 'w',
+                    },
+                    {
+                        data: 'd',
+                    },
+                    {
+                        data: '',
+                    },
+                ],
+            },
+        } as Prompt;
+
+        useStore.setState({
+            terminal: newTerminal,
+        });
+
+        useStore.setState({
+            cursor: {
+                position: {
+                    row: 0,
+                    column: 3,
+                },
+            },
+        });
+        expect(useStore.getState().terminal.rows.length).toBe(1);
+
+        const { result: submitPromptRef } = renderHook(() => useSubmitPrompt());
+
+        act(() => submitPromptRef.current());
+
+        const rows = useStore.getState().terminal.rows;
+
+        console.log(JSON.stringify(rows, null, 2));
+
+        expect(rows.length).toBe(3);
+        const lastIndex = rows.length - 1;
+        const secondToLastIndex = rows.length - 2;
+
+        expect(isPrompt(rows[lastIndex].content)).toBeTruthy();
+        expect(isResult(rows[secondToLastIndex].content)).toBeTruthy();
     });
 });

@@ -1,7 +1,18 @@
 import create from 'zustand';
 import produce from 'immer';
 
-import { createInitialTerminal, Cursor, Prompt, Terminal } from '../domain';
+import {
+    createInitialTerminal,
+    createRow,
+    Cursor,
+    getPrompt,
+    isResult,
+    Prompt,
+    Result,
+    setPrompt,
+    Terminal,
+    TerminalRow,
+} from '../domain';
 
 import type { Store } from './terminal.app';
 import { createId } from '../utils';
@@ -32,29 +43,43 @@ export const useStore = create<AppStore>((set, get) => ({
     updatePrompt: (newChar, columnIndex) =>
         set(
             produce<AppStore>((state) => {
-                // last row should always be a prompt, I could also invariant here
-                const index = state.terminal.rows.length - 1;
-                const newPrompt = state.terminal.rows[index].content as Prompt;
+                const prompt = getPrompt(state.terminal);
 
-                newPrompt.line.content.splice(columnIndex, 0, {
+                prompt.line.content.splice(columnIndex, 0, {
                     id: createId(),
                     data: newChar,
                 });
 
-                state.terminal.rows[index].content = newPrompt;
+                setPrompt(prompt, state.terminal);
             })
         ),
-    addRow: () => {},
+    addRow: (rowContent: Prompt | Result) => {
+        set(
+            produce<AppStore>((state) => {
+                const index = state.terminal.rows.length;
+                const newRow = createRow(index, rowContent);
+
+                let rowsToAdd = 1;
+
+                if (isResult(newRow.content)) {
+                    rowsToAdd = newRow.content.lines.length;
+                }
+
+                console.log('rowsToAdd', rowsToAdd);
+
+                state.terminal.rows.push(newRow);
+                state.cursor.position.row += rowsToAdd;
+                state.cursor.position.column = 0;
+            })
+        );
+    },
     removeCharacter: (columnIndex) =>
         set(
             produce<AppStore>((state) => {
-                // last row should always be a prompt, I could also invariant here
-                const index = state.terminal.rows.length - 1;
-                const newPrompt = state.terminal.rows[index].content as Prompt;
+                const prompt = getPrompt(state.terminal);
+                prompt.line.content.splice(columnIndex, 1);
 
-                newPrompt.line.content.splice(columnIndex, 1);
-
-                state.terminal.rows[index].content = newPrompt;
+                setPrompt(prompt, state.terminal);
             })
         ),
     getPrompt: () => {
