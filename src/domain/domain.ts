@@ -76,7 +76,7 @@ export function createPrompt(): Prompt {
         line: {
             content: [createChar()],
         },
-        prefix: '~ ',
+        prefix: 'thafner ~ ',
     };
 }
 

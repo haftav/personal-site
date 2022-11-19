@@ -40,8 +40,8 @@ const whoamiHandler: CommandHandler = {
 };
 
 const notFoundHandler: CommandHandler = {
-    getResult: () => {
-        const lines: ParsedLine[] = ['Command not found'];
+    getResult: (command) => {
+        const lines: ParsedLine[] = [`command not found: ${command.name}`];
         return createResult(lines);
     },
 };

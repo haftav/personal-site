@@ -65,8 +65,6 @@ export const useStore = create<AppStore>((set, get) => ({
                     rowsToAdd = newRow.content.lines.length;
                 }
 
-                console.log('rowsToAdd', rowsToAdd);
-
                 state.terminal.rows.push(newRow);
                 state.cursor.position.row += rowsToAdd;
                 state.cursor.position.column = 0;
@@ -77,7 +75,7 @@ export const useStore = create<AppStore>((set, get) => ({
         set(
             produce<AppStore>((state) => {
                 const prompt = getPrompt(state.terminal);
-                prompt.line.content.splice(columnIndex, 1);
+                prompt.line.content.splice(columnIndex - 1, 1);
 
                 setPrompt(prompt, state.terminal);
             })

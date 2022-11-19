@@ -1,4 +1,11 @@
-import { isPrompt, Result, Prompt, TerminalRow, Char } from '../../domain';
+import {
+    isPrompt,
+    Result,
+    Prompt,
+    TerminalRow,
+    Char,
+    getPrompt,
+} from '../../domain';
 import { useStore } from '../store';
 
 import { useHandleKeyPress, useTerminalSize } from './hooks';
@@ -15,7 +22,12 @@ export const Terminal = () => {
 
     return (
         <div
-            style={{ position: 'absolute', width: '100vw', height: '100vh' }}
+            style={{
+                position: 'absolute',
+                width: '100vw',
+                height: '100vh',
+                overflow: 'scroll',
+            }}
             ref={ref}
         >
             {rows.map((row) => (
@@ -26,6 +38,39 @@ export const Terminal = () => {
     );
 };
 
+function calculateRowHeight(
+    row: TerminalRow,
+    terminalWidthInGridDimensions: number
+) {
+    const { content } = row;
+
+    if (isPrompt(content)) {
+        const prefixOffset = content.prefix.length;
+
+        const characters = content.line.content;
+        const numberOfCharactersInRow = characters.length;
+        const column = prefixOffset + numberOfCharactersInRow;
+
+        const heightInPixels =
+            rowHeight +
+            Math.floor(column / terminalWidthInGridDimensions) * rowHeight;
+
+        return heightInPixels;
+    } else {
+        // iterate through all rows in each result, adding up heights
+        return content.lines.reduce((accum, line) => {
+            const characters = line.content;
+            const column = characters.length;
+
+            const heightInPixels =
+                rowHeight +
+                Math.floor(column / terminalWidthInGridDimensions) * rowHeight;
+
+            return accum + heightInPixels;
+        }, 0);
+    }
+}
+
 interface CursorProps {
     terminalWidth: number;
 }
@@ -34,24 +79,37 @@ export const Cursor = (props: CursorProps) => {
     const { terminalWidth } = props;
 
     const position = useStore((store) => store.cursor.position);
-    console.log(position);
-    // TODO: turn this into a selector
-    const prompt = useStore((store) => store.getPrompt());
+    const prompt = useStore((store) => getPrompt(store.terminal));
+    const rows = useStore((store) => store.terminal.rows);
 
     const prefixOffset = prompt.prefix.length;
 
     const column = position.column + prefixOffset;
-    const row = position.row;
 
     const terminalWidthInGridDimensions = Math.floor(
         terminalWidth / columnWidth
     );
 
+    const heightOfAllRowsExceptLastInPixels = rows
+        .slice(0, rows.length - 1)
+        .reduce(
+            (accum, curr) =>
+                accum + calculateRowHeight(curr, terminalWidthInGridDimensions),
+            0
+        );
+
+    console.log(
+        'heightOfAllRowsExceptLastInPixels',
+        heightOfAllRowsExceptLastInPixels
+    );
     const correctedLeft =
         (column % terminalWidthInGridDimensions) * columnWidth;
     const correctedTop =
-        row * rowHeight +
         Math.floor(column / terminalWidthInGridDimensions) * rowHeight;
+
+    const top = heightOfAllRowsExceptLastInPixels + correctedTop;
+
+    console.log(rows);
 
     return (
         <div
@@ -59,7 +117,7 @@ export const Cursor = (props: CursorProps) => {
                 width: columnWidth,
                 height: rowHeight,
                 position: 'absolute',
-                top: correctedTop,
+                top: top,
                 left: correctedLeft,
                 backgroundColor: 'white',
             }}

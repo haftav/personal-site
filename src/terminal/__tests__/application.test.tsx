@@ -141,7 +141,7 @@ describe('removeCharacter', () => {
             line: {
                 content: [
                     {
-                        data: 'a',
+                        data: '',
                     },
                 ],
             },
@@ -250,8 +250,6 @@ describe('submitPrompt', () => {
         act(() => submitPromptRef.current());
 
         const rows = useStore.getState().terminal.rows;
-
-        console.log(JSON.stringify(rows, null, 2));
 
         expect(rows.length).toBe(3);
         const lastIndex = rows.length - 1;
