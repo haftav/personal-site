@@ -9,8 +9,17 @@ export const handleCommand = (command: Command): Result => {
 };
 
 function commandFactory(command: Command): CommandHandler {
+    if (command.name === 'help') {
+        return helpHandler;
+    }
     if (command.name === 'pwd') {
         return pwdHandler;
+    }
+    if (command.name === 'ls') {
+        return lsHandler;
+    }
+    if (command.name === 'cd') {
+        return cdHandler;
     }
     if (command.name === 'whoami') {
         return whoamiHandler;
@@ -23,19 +32,49 @@ interface CommandHandler {
     getResult(command: Command): Result;
 }
 
-const pwdHandler: CommandHandler = {
+const helpHandler: CommandHandler = {
     getResult: () => {
-        const lines: ParsedLine[] = ['some directory'];
+        const lines: ParsedLine[] = ['Available commands:', 'whoami'];
 
         return createResult(lines);
     },
 };
 
-const whoamiHandler: CommandHandler = {
+const pwdHandler: CommandHandler = {
     getResult: () => {
-        const lines: ParsedLine[] = ['tav'];
+        const lines: ParsedLine[] = ['coming soon...'];
 
         return createResult(lines);
+    },
+};
+
+export const fakeDirectories = ['about', 'work', 'skills', 'blog'];
+
+const lsHandler: CommandHandler = {
+    getResult: () => {
+        const lines: ParsedLine[] = [fakeDirectories.join(' ')];
+
+        return createResult(lines);
+    },
+};
+
+const cdHandler: CommandHandler = {
+    getResult: () => {
+        const lines: ParsedLine[] = ['coming soon...'];
+
+        return createResult(lines);
+    },
+};
+
+export const aboutMe: ParsedLine[] = [
+    'Hi!',
+    "I'm Tav.",
+    'I love building web applications and am currently working with Sliderule on no-code backend tools.',
+];
+
+const whoamiHandler: CommandHandler = {
+    getResult: () => {
+        return createResult(aboutMe);
     },
 };
 

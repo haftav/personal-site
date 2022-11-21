@@ -98,10 +98,6 @@ export const Cursor = (props: CursorProps) => {
             0
         );
 
-    console.log(
-        'heightOfAllRowsExceptLastInPixels',
-        heightOfAllRowsExceptLastInPixels
-    );
     const correctedLeft =
         (column % terminalWidthInGridDimensions) * columnWidth;
     const correctedTop =
@@ -138,9 +134,13 @@ export const Row = ({ row }: { row: TerminalRow }) => {
 export const ResultRow = ({ result }: { result: Result }) => {
     return (
         <div>
-            {result.lines.map((line) =>
-                line.content.map((char) => <Char char={char} key={char.id} />)
-            )}
+            {result.lines.map((line) => (
+                <div>
+                    {line.content.map((char) => (
+                        <Char char={char} key={char.id} />
+                    ))}
+                </div>
+            ))}
         </div>
     );
 };

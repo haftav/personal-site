@@ -1,3 +1,8 @@
+// TODO:
+// limit number of rows in store
+// fake directory navigation
+// human-readable view
+// handle modifier keys
 import {
     Char,
     CharData,
@@ -57,10 +62,14 @@ export const submitPrompt = (deps: {
         return;
     }
 
+    // TODO: how do I handle 'clear'? add some extra height to container to account for scroll overflow?
     const command = parser.parse(promptString);
     const result = commandHandler.handleCommand(command);
 
-    store.addRow(result);
+    if (result) {
+        store.addRow(result);
+    }
+
     store.addRow(createPrompt());
 };
 
