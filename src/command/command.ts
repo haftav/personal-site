@@ -1,6 +1,18 @@
-import { Command, createResult, ParsedLine, Result } from '../domain';
+import {
+    Command,
+    createPrompt,
+    createResult,
+    ParsedLine,
+    Result,
+    Prompt,
+    Arg,
+    Route,
+    isRoute,
+} from '../domain';
 
-export const handleCommand = (command: Command): Result => {
+import { router } from '../router';
+
+export const handleCommand = (command: Command): Array<Prompt | Result> => {
     const handler = commandFactory(command);
 
     const result = handler.getResult(command);
@@ -10,60 +22,100 @@ export const handleCommand = (command: Command): Result => {
 
 function commandFactory(command: Command): CommandHandler {
     if (command.name === 'help') {
-        return helpHandler;
+        return createHelpHandler();
     }
     if (command.name === 'pwd') {
-        return pwdHandler;
+        return createPwdHandler();
     }
     if (command.name === 'ls') {
-        return lsHandler;
+        return createLsHandler();
     }
     if (command.name === 'cd') {
-        return cdHandler;
+        return createCdHandler(command.args, { router });
     }
     if (command.name === 'whoami') {
-        return whoamiHandler;
+        return createWhoamiHandler();
     }
 
     return notFoundHandler;
 }
 
 interface CommandHandler {
-    getResult(command: Command): Result;
+    getResult(command: Command): Array<Prompt | Result>;
 }
 
-const helpHandler: CommandHandler = {
-    getResult: () => {
-        const lines: ParsedLine[] = ['Available commands:', 'whoami'];
+const createHelpHandler = (): CommandHandler => {
+    return {
+        getResult: () => {
+            const lines: ParsedLine[] = ['Available commands:', 'whoami'];
 
-        return createResult(lines);
-    },
+            return [createResult(lines), createPrompt()];
+        },
+    };
 };
 
-const pwdHandler: CommandHandler = {
-    getResult: () => {
-        const lines: ParsedLine[] = ['coming soon...'];
+const createPwdHandler = (): CommandHandler => {
+    return {
+        getResult: () => {
+            const lines: ParsedLine[] = ['coming soon...'];
 
-        return createResult(lines);
-    },
+            return [createResult(lines), createPrompt()];
+        },
+    };
 };
 
 export const fakeDirectories = ['about', 'work', 'skills', 'blog'];
 
-const lsHandler: CommandHandler = {
-    getResult: () => {
-        const lines: ParsedLine[] = [fakeDirectories.join(' ')];
+const createLsHandler = (): CommandHandler => {
+    return {
+        getResult: () => {
+            const lines: ParsedLine[] = [fakeDirectories.join(' ')];
 
-        return createResult(lines);
-    },
+            return [createResult(lines), createPrompt()];
+        },
+    };
 };
 
-const cdHandler: CommandHandler = {
-    getResult: () => {
-        const lines: ParsedLine[] = ['coming soon...'];
+interface RouterService {
+    navigate(path: Route): void;
+}
 
-        return createResult(lines);
-    },
+const createCdHandler = (
+    args: Arg[],
+    deps: { router: RouterService }
+): CommandHandler => {
+    const { router } = deps;
+
+    return {
+        getResult: () => {
+            const directory = args[0];
+
+            try {
+                if (!directory) {
+                    throw new Error(directory);
+                }
+
+                if (fakeDirectories.indexOf(directory) === -1) {
+                    throw new Error('No directory');
+                }
+
+                if (!isRoute(directory)) {
+                    throw new Error('Directory does not exist');
+                }
+
+                router.navigate(directory);
+
+                return [createPrompt()];
+            } catch (err) {
+                return [
+                    createResult([
+                        `cd: no such file or directory: ${directory}`,
+                    ]),
+                    createPrompt(),
+                ];
+            }
+        },
+    };
 };
 
 export const aboutMe: ParsedLine[] = [
@@ -72,15 +124,17 @@ export const aboutMe: ParsedLine[] = [
     'I love building web applications and am currently working with Sliderule on no-code backend tools.',
 ];
 
-const whoamiHandler: CommandHandler = {
-    getResult: () => {
-        return createResult(aboutMe);
-    },
+const createWhoamiHandler = (): CommandHandler => {
+    return {
+        getResult: () => {
+            return [createResult(aboutMe), createPrompt()];
+        },
+    };
 };
 
 const notFoundHandler: CommandHandler = {
     getResult: (command) => {
         const lines: ParsedLine[] = [`command not found: ${command.name}`];
-        return createResult(lines);
+        return [createResult(lines), createPrompt()];
     },
 };

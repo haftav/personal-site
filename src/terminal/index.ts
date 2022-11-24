@@ -1,1 +1,1 @@
-export * from './terminal.view';
+export * from './view';

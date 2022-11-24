@@ -6,12 +6,24 @@ import {
     Char,
     getPrompt,
 } from '../../domain';
+import { useRouterStore, router } from '../../router';
 import { useStore } from '../store';
 
 import { useHandleKeyPress, useTerminalSize } from './hooks';
 
 const columnWidth = 10;
 const rowHeight = 20;
+
+export const TerminalView = () => {
+    const route = useRouterStore((state) => state.route);
+
+    switch (route) {
+        case 'about':
+            return <AboutMe />;
+        default:
+            return <Terminal />;
+    }
+};
 
 export const Terminal = () => {
     useHandleKeyPress();
@@ -31,7 +43,7 @@ export const Terminal = () => {
             ref={ref}
         >
             {rows.map((row) => (
-                <Row row={row} key={row.index} />
+                <Row row={row} key={row.id} />
             ))}
             <Cursor terminalWidth={width} />
         </div>
@@ -82,6 +94,8 @@ export const Cursor = (props: CursorProps) => {
     const prompt = useStore((store) => getPrompt(store.terminal));
     const rows = useStore((store) => store.terminal.rows);
 
+    // TODO: find another way to get prefix without storing it in store
+    // it should be derived from the current 'view'
     const prefixOffset = prompt.prefix.length;
 
     const column = position.column + prefixOffset;
@@ -104,8 +118,6 @@ export const Cursor = (props: CursorProps) => {
         Math.floor(column / terminalWidthInGridDimensions) * rowHeight;
 
     const top = heightOfAllRowsExceptLastInPixels + correctedTop;
-
-    console.log(rows);
 
     return (
         <div
@@ -134,8 +146,8 @@ export const Row = ({ row }: { row: TerminalRow }) => {
 export const ResultRow = ({ result }: { result: Result }) => {
     return (
         <div>
-            {result.lines.map((line) => (
-                <div>
+            {result.lines.map((line, index) => (
+                <div key={index}>
                     {line.content.map((char) => (
                         <Char char={char} key={char.id} />
                     ))}
@@ -178,5 +190,17 @@ const Char = ({ char }: { char: Char }) => {
         >
             {char.data}
         </span>
+    );
+};
+
+const AboutMe = () => {
+    return (
+        <div>
+            <div>
+                <button onClick={() => router.navigate('main')}>
+                    {'<<'} Back
+                </button>
+            </div>
+        </div>
     );
 };

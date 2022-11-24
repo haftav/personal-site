@@ -1,11 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { Terminal } from '../terminal/view';
+import { TerminalView } from '../terminal/view';
 ---
 
 <Layout title="thafner">
     <main>
-        <Terminal client:only />
+        <TerminalView client:only />
     </main>
 </Layout>
 

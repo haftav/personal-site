@@ -34,7 +34,7 @@ interface Parser {
 }
 
 interface CommandHandler {
-    handleCommand: (command: Command) => Result;
+    handleCommand: (command: Command) => Array<Prompt | Result>;
 }
 
 export const updatePrompt = (newChar: CharData, deps: { store: Store }) => {
@@ -64,13 +64,9 @@ export const submitPrompt = (deps: {
 
     // TODO: how do I handle 'clear'? add some extra height to container to account for scroll overflow?
     const command = parser.parse(promptString);
-    const result = commandHandler.handleCommand(command);
+    const results = commandHandler.handleCommand(command);
 
-    if (result) {
-        store.addRow(result);
-    }
-
-    store.addRow(createPrompt());
+    results.forEach((result) => store.addRow(result));
 };
 
 export const removeCharacter = (deps: {

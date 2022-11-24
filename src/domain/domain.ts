@@ -3,80 +3,76 @@ import { createId } from '../utils';
 export interface Terminal {
     rows: TerminalRow[];
 }
-
+type RowId = string;
 export interface TerminalRow {
-    index: RowIndex;
+    id: RowId;
     content: Prompt | Result;
 }
-
-export type RowIndex = number;
-export type ColumnIndex = number;
-
+type PromptPrefix = string;
 export interface Prompt {
     line: Line;
     prefix: PromptPrefix;
 }
-
-type PromptPrefix = string;
-
 export interface Result {
     lines: Line[];
 }
-
 interface Line {
     content: Char[];
 }
 
+type CharId = string;
+export type CharData = string;
 export interface Char {
     id: CharId;
     data: CharData;
 }
-type CharId = string;
-export type CharData = string;
 
-export type PromptString = string;
-
+export type Flag = string;
+export type Arg = string;
+export type CommandName = string;
 export interface Command {
     name: CommandName;
     flags: Flag[];
     args: Arg[];
 }
-type CommandName = string;
-type Flag = string;
-type Arg = string;
 
-export type ParsedLine = string;
-
-export interface Cursor {
-    position: CursorPosition;
-}
+export type RowIndex = number;
+export type ColumnIndex = number;
 export interface CursorPosition {
     row: RowIndex;
     column: ColumnIndex;
 }
+export interface Cursor {
+    position: CursorPosition;
+}
+
+export type PromptString = string;
+export type ParsedLine = string;
+
+const routes = ['main', 'about', 'work', 'skills', 'blog'] as const;
+
+export type Route = typeof routes[number];
 
 export function createInitialTerminal(): Terminal {
     return {
-        rows: [createRow(0, createPrompt())],
+        rows: [createRow(createId(), createPrompt())],
     };
 }
 
-export function createRow(
-    index: RowIndex,
-    content: Prompt | Result
-): TerminalRow {
+export function createRow(id: RowId, content: Prompt | Result): TerminalRow {
     return {
-        index,
+        id,
         content,
     };
 }
 
-export function createPrompt(): Prompt {
+// TODO: add Route type to domain
+export function createPrompt(directory?: Route): Prompt {
     return {
         line: {
             content: [createChar()],
         },
-        prefix: 'thafner ~ ',
+        prefix: `thafner${directory ? '/' + directory : ''} ~ `,
     };
 }
 
@@ -155,6 +151,10 @@ export function isResult(content: Prompt | Result): content is Result {
     }
 
     return false;
+}
+
+export function isRoute(str: string): str is Route {
+    return routes.includes(str as Route);
 }
 
 export function getPrompt(terminal: Terminal): Prompt {

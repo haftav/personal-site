@@ -57,7 +57,7 @@ export const useStore = create<AppStore>((set, get) => ({
         set(
             produce<AppStore>((state) => {
                 const index = state.terminal.rows.length;
-                const newRow = createRow(index, rowContent);
+                const newRow = createRow(createId(), rowContent);
 
                 let rowsToAdd = 1;
 

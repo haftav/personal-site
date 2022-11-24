@@ -1,2 +1,1 @@
-export { Terminal } from './terminal';
-
+export { TerminalView } from './terminal';
