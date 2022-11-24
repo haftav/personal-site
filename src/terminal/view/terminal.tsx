@@ -1,15 +1,15 @@
 import {
-    isPrompt,
+    TerminalRow,
     Result,
     Prompt,
-    TerminalRow,
     Char,
     getPrompt,
+    isPrompt,
 } from '../../domain';
 import { useRouterStore, router } from '../../router';
 import { useStore } from '../store';
 
-import { useHandleKeyPress, useTerminalSize } from './hooks';
+import { useHandleKeyPress, useTerminalFocus, useTerminalSize } from './hooks';
 
 const columnWidth = 10;
 const rowHeight = 20;
@@ -20,15 +20,21 @@ export const TerminalView = () => {
     switch (route) {
         case 'about':
             return <AboutMe />;
+        case 'work':
+            return <Work />;
+        case 'skills':
+            return <Skills />;
+        case 'blog':
+            return <Blog />;
         default:
             return <Terminal />;
     }
 };
 
 export const Terminal = () => {
-    useHandleKeyPress();
-
-    const { ref, width } = useTerminalSize();
+    const { ref: terminalRef, width } = useTerminalSize();
+    const { ref: hiddenInputRef, setFocus } = useTerminalFocus();
+    const handleKeyPress = useHandleKeyPress();
 
     const rows = useStore((store) => store.terminal.rows);
 
@@ -40,19 +46,27 @@ export const Terminal = () => {
                 height: '100vh',
                 overflow: 'scroll',
             }}
-            ref={ref}
+            ref={terminalRef}
+            onClick={setFocus}
         >
             {rows.map((row) => (
                 <Row row={row} key={row.id} />
             ))}
             <Cursor terminalWidth={width} />
+            <input
+                ref={hiddenInputRef}
+                onKeyDown={handleKeyPress}
+                value=""
+                style={{ width: 0, height: 0, border: 'none' }}
+                autoCapitalize="none"
+            />
         </div>
     );
 };
 
 function calculateRowHeight(
     row: TerminalRow,
-    terminalWidthInGridDimensions: number
+    terminalWidthInGridCells: number
 ) {
     const { content } = row;
 
@@ -65,7 +79,7 @@ function calculateRowHeight(
 
         const heightInPixels =
             rowHeight +
-            Math.floor(column / terminalWidthInGridDimensions) * rowHeight;
+            Math.floor(column / terminalWidthInGridCells) * rowHeight;
 
         return heightInPixels;
     } else {
@@ -76,7 +90,7 @@ function calculateRowHeight(
 
             const heightInPixels =
                 rowHeight +
-                Math.floor(column / terminalWidthInGridDimensions) * rowHeight;
+                Math.floor(column / terminalWidthInGridCells) * rowHeight;
 
             return accum + heightInPixels;
         }, 0);
@@ -94,30 +108,24 @@ export const Cursor = (props: CursorProps) => {
     const prompt = useStore((store) => getPrompt(store.terminal));
     const rows = useStore((store) => store.terminal.rows);
 
-    // TODO: find another way to get prefix without storing it in store
-    // it should be derived from the current 'view'
     const prefixOffset = prompt.prefix.length;
 
     const column = position.column + prefixOffset;
 
-    const terminalWidthInGridDimensions = Math.floor(
-        terminalWidth / columnWidth
-    );
+    const terminalWidthInGridCells = Math.floor(terminalWidth / columnWidth);
 
     const heightOfAllRowsExceptLastInPixels = rows
         .slice(0, rows.length - 1)
         .reduce(
             (accum, curr) =>
-                accum + calculateRowHeight(curr, terminalWidthInGridDimensions),
+                accum + calculateRowHeight(curr, terminalWidthInGridCells),
             0
         );
 
-    const correctedLeft =
-        (column % terminalWidthInGridDimensions) * columnWidth;
-    const correctedTop =
-        Math.floor(column / terminalWidthInGridDimensions) * rowHeight;
-
-    const top = heightOfAllRowsExceptLastInPixels + correctedTop;
+    const left = (column % terminalWidthInGridCells) * columnWidth;
+    const currentRowTop =
+        Math.floor(column / terminalWidthInGridCells) * rowHeight;
+    const top = heightOfAllRowsExceptLastInPixels + currentRowTop;
 
     return (
         <div
@@ -126,7 +134,7 @@ export const Cursor = (props: CursorProps) => {
                 height: rowHeight,
                 position: 'absolute',
                 top: top,
-                left: correctedLeft,
+                left,
                 backgroundColor: 'white',
             }}
         />
@@ -201,6 +209,48 @@ const AboutMe = () => {
                     {'<<'} Back
                 </button>
             </div>
+            <h1>About me</h1>
+        </div>
+    );
+};
+
+const Skills = () => {
+    return (
+        <div>
+            <div>
+                <button onClick={() => router.navigate('main')}>
+                    {'<<'} Back
+                </button>
+            </div>
+
+            <h1>Skills</h1>
+        </div>
+    );
+};
+
+const Work = () => {
+    return (
+        <div>
+            <div>
+                <button onClick={() => router.navigate('main')}>
+                    {'<<'} Back
+                </button>
+            </div>
+
+            <h1>Work</h1>
+        </div>
+    );
+};
+
+const Blog = () => {
+    return (
+        <div>
+            <div>
+                <button onClick={() => router.navigate('main')}>
+                    {'<<'} Back
+                </button>
+            </div>
+            <h1>Blog</h1>
         </div>
     );
 };

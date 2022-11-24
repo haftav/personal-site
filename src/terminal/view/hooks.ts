@@ -57,34 +57,45 @@ export function useHandleKeyPress() {
     const removeCharacter = useRemoveCharacter();
     const submitPrompt = useSubmitPrompt();
 
+    const listener: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
+        const key = e.key.toLowerCase();
+
+        const isEnter = key === 'enter';
+        const isBackspace = key === 'backspace';
+
+        if (isEnter) {
+            submitPrompt();
+            return;
+        }
+
+        if (isBackspace) {
+            removeCharacter();
+            return;
+        }
+
+        if (key.length !== 1) {
+            return;
+        }
+
+        updatePrompt(e.key);
+    };
+
+    return listener;
+}
+
+export function useTerminalFocus() {
+    const ref = React.useRef<HTMLInputElement>(null);
+
+    const setFocus = () => {
+        ref.current?.focus();
+    };
+
     React.useEffect(() => {
-        const listener = (e: KeyboardEvent) => {
-            const key = e.key.toLowerCase();
+        ref.current?.focus();
+    }, []);
 
-            const isEnter = key === 'enter';
-            const isBackspace = key === 'backspace';
-
-            if (isEnter) {
-                submitPrompt();
-                return;
-            }
-
-            if (isBackspace) {
-                removeCharacter();
-                return;
-            }
-
-            if (key.length !== 1) {
-                return;
-            }
-
-            updatePrompt(e.key);
-        };
-
-        document.addEventListener('keydown', listener);
-
-        return () => {
-            document.removeEventListener('keydown', listener);
-        };
-    }, [updatePrompt, removeCharacter, submitPrompt]);
+    return {
+        ref,
+        setFocus,
+    };
 }

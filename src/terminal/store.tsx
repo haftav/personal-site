@@ -2,31 +2,18 @@ import create from 'zustand';
 import produce from 'immer';
 
 import {
-    createInitialTerminal,
-    createRow,
-    Cursor,
-    getPrompt,
-    isResult,
     Prompt,
     Result,
+    createInitialTerminal,
+    createRow,
+    getPrompt,
+    isResult,
     setPrompt,
-    Terminal,
-    TerminalRow,
 } from '../domain';
-
-import type { Store } from './terminal.app';
 import { createId } from '../utils';
+import type { Store } from './terminal.app';
 
-type AppStore = {
-    cursor: Cursor;
-    terminal: Terminal;
-    getPrompt: () => Prompt;
-} & Pick<
-    Store,
-    'setCursorPosition' | 'updatePrompt' | 'addRow' | 'removeCharacter'
->;
-
-export const useStore = create<AppStore>((set, get) => ({
+export const useStore = create<Store>((set) => ({
     cursor: {
         position: {
             row: 0,
@@ -36,13 +23,13 @@ export const useStore = create<AppStore>((set, get) => ({
     terminal: createInitialTerminal(),
     setCursorPosition: (newColumn) =>
         set(
-            produce<AppStore>((state) => {
+            produce<Store>((state) => {
                 state.cursor.position.column = newColumn;
             })
         ),
     updatePrompt: (newChar, columnIndex) =>
         set(
-            produce<AppStore>((state) => {
+            produce<Store>((state) => {
                 const prompt = getPrompt(state.terminal);
 
                 prompt.line.content.splice(columnIndex, 0, {
@@ -55,8 +42,7 @@ export const useStore = create<AppStore>((set, get) => ({
         ),
     addRow: (rowContent: Prompt | Result) => {
         set(
-            produce<AppStore>((state) => {
-                const index = state.terminal.rows.length;
+            produce<Store>((state) => {
                 const newRow = createRow(createId(), rowContent);
 
                 let rowsToAdd = 1;
@@ -73,17 +59,11 @@ export const useStore = create<AppStore>((set, get) => ({
     },
     removeCharacter: (columnIndex) =>
         set(
-            produce<AppStore>((state) => {
+            produce<Store>((state) => {
                 const prompt = getPrompt(state.terminal);
                 prompt.line.content.splice(columnIndex - 1, 1);
 
                 setPrompt(prompt, state.terminal);
             })
         ),
-    getPrompt: () => {
-        const index = get().terminal.rows.length - 1;
-        const prompt = get().terminal.rows[index].content as Prompt;
-
-        return prompt;
-    },
 }));

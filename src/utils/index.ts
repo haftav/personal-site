@@ -1,8 +1,6 @@
 import type { Result } from '../domain';
 
 let id = 0;
-
-// TODO: close over id
 export function createId() {
     return String(++id);
 }

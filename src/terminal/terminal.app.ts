@@ -4,15 +4,12 @@
 // human-readable view
 // handle modifier keys
 import {
-    Char,
     CharData,
     ColumnIndex,
     Command,
     convertPromptToPromptString,
     createPrompt,
-    createRow,
     Cursor,
-    CursorPosition,
     getPrompt,
     Prompt,
     PromptString,
