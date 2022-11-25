@@ -1,7 +1,15 @@
-import { describe, it, expect } from 'vitest';
-import { Command, isResult, isPrompt, Result } from '../domain';
+import { describe, it, expect, beforeEach } from 'vitest';
+import { Command, isResult, isPrompt, Result, routes } from '../domain';
+import { useRouterStore } from '../router';
 import { resultToString } from '../utils';
 import { handleCommand, aboutMe, fakeDirectories } from './command';
+
+// probably not the cleanest way to test this
+const initialStoreState = useRouterStore.getState();
+
+beforeEach(() => {
+    useRouterStore.setState(initialStoreState, true);
+});
 
 describe('Handles CLI commands correctly', () => {
     it('handles whoami', () => {
@@ -60,5 +68,52 @@ describe('Handles CLI commands correctly', () => {
         expect(resultToString(result as Result)).toBe(
             fakeDirectories.join(' ')
         );
+    });
+
+    it('handles cd to main view', () => {
+        const cdToNothing: Command = {
+            name: 'cd',
+            args: [],
+            flags: [],
+        };
+
+        const cdToSquiggly: Command = {
+            name: 'cd',
+            args: ['~'],
+            flags: [],
+        };
+
+        const cdToSlash: Command = {
+            name: 'cd',
+            args: ['/'],
+            flags: [],
+        };
+
+        const [result1] = handleCommand(cdToNothing);
+        expect(isPrompt(result1)).toBeTruthy();
+        expect(useRouterStore.getState().route).toBe('main');
+
+        const [result2] = handleCommand(cdToSquiggly);
+        expect(isPrompt(result2)).toBeTruthy();
+        expect(useRouterStore.getState().route).toBe('main');
+
+        const [result3] = handleCommand(cdToSlash);
+        expect(isPrompt(result3)).toBeTruthy();
+        expect(useRouterStore.getState().route).toBe('main');
+    });
+
+    it('handles cd to a directory', () => {
+        routes.forEach((route) => {
+            const command: Command = {
+                name: 'cd',
+                args: [route],
+                flags: [],
+            };
+
+            const [result] = handleCommand(command);
+
+            expect(isPrompt(result)).toBeTruthy();
+            expect(useRouterStore.getState().route).toBe(route);
+        });
     });
 });

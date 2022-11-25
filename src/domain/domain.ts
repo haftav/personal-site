@@ -49,7 +49,7 @@ export interface Cursor {
 export type PromptString = string;
 export type ParsedLine = string;
 
-const routes = ['main', 'about', 'work', 'skills', 'blog'] as const;
+export const routes = ['main', 'about', 'work', 'skills', 'blog'] as const;
 
 export type Route = typeof routes[number];
 

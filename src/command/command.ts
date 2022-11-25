@@ -88,17 +88,13 @@ const createCdHandler = (
 
     return {
         getResult: () => {
-            const directory = args[0];
+            let directory = args[0];
+
+            if (!directory || directory === '~' || directory === '/') {
+                directory = 'main';
+            }
 
             try {
-                if (!directory) {
-                    throw new Error(directory);
-                }
-
-                if (fakeDirectories.indexOf(directory) === -1) {
-                    throw new Error('No directory');
-                }
-
                 if (!isRoute(directory)) {
                     throw new Error('Directory does not exist');
                 }
