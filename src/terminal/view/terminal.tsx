@@ -44,22 +44,31 @@ export const Terminal = () => {
                 position: 'absolute',
                 width: '100vw',
                 height: '100vh',
+                padding: '8px',
                 overflow: 'scroll',
             }}
-            ref={terminalRef}
-            onClick={setFocus}
         >
-            {rows.map((row) => (
-                <Row row={row} key={row.id} />
-            ))}
-            <Cursor terminalWidth={width} />
-            <input
-                ref={hiddenInputRef}
-                onKeyDown={handleKeyPress}
-                value=""
-                style={{ width: 0, height: 0, border: 'none' }}
-                autoCapitalize="none"
-            />
+            <div
+                style={{
+                    position: 'relative',
+                    width: '100%',
+                    height: '100vh',
+                }}
+                ref={terminalRef}
+                onClick={setFocus}
+            >
+                {rows.map((row) => (
+                    <Row row={row} key={row.id} />
+                ))}
+                <Cursor terminalWidth={width} />
+                <input
+                    ref={hiddenInputRef}
+                    onKeyDown={handleKeyPress}
+                    value=""
+                    style={{ width: 0, height: 0, border: 'none' }}
+                    autoCapitalize="none"
+                />
+            </div>
         </div>
     );
 };

@@ -1,15 +1,14 @@
 import {
     Command,
-    createPrompt,
-    createResult,
     ParsedLine,
     Result,
     Prompt,
     Arg,
     Route,
+    createPrompt,
+    createResult,
     isRoute,
 } from '../domain';
-
 import { router } from '../router';
 
 export const handleCommand = (command: Command): Array<Prompt | Result> => {
@@ -47,7 +46,12 @@ interface CommandHandler {
 const createHelpHandler = (): CommandHandler => {
     return {
         getResult: () => {
-            const lines: ParsedLine[] = ['Available commands:', 'whoami'];
+            const lines: ParsedLine[] = [
+                'Available commands:',
+                'whoami',
+                'ls',
+                'cd',
+            ];
 
             return [createResult(lines), createPrompt()];
         },
