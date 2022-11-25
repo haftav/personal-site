@@ -44,6 +44,21 @@ export const useStore = create<Store>((set) => ({
         set(
             produce<Store>((state) => {
                 const newRow = createRow(createId(), rowContent);
+                const rows = state.terminal.rows;
+
+                const maxNumberOfRows = 100;
+
+                if (rows.length + 1 > maxNumberOfRows) {
+                    let index = 0;
+
+                    if (isResult(rows[index + 1].content)) {
+                        index += 1;
+                    }
+
+                    const sliceIndex = index + 1;
+
+                    state.terminal.rows = state.terminal.rows.slice(sliceIndex);
+                }
 
                 let rowsToAdd = 1;
 
