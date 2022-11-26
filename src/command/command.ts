@@ -8,6 +8,7 @@ import {
     createPrompt,
     createResult,
     isRoute,
+    routes,
 } from '../domain';
 import { router } from '../router';
 
@@ -49,6 +50,7 @@ const createHelpHandler = (): CommandHandler => {
             const lines: ParsedLine[] = [
                 'Available commands:',
                 'whoami',
+                'pwd',
                 'ls',
                 'cd',
             ];
@@ -61,19 +63,19 @@ const createHelpHandler = (): CommandHandler => {
 const createPwdHandler = (): CommandHandler => {
     return {
         getResult: () => {
-            const lines: ParsedLine[] = ['coming soon...'];
+            const lines: ParsedLine[] = ['/thafner'];
 
             return [createResult(lines), createPrompt()];
         },
     };
 };
 
-export const fakeDirectories = ['about', 'work', 'skills', 'blog'];
-
 const createLsHandler = (): CommandHandler => {
     return {
         getResult: () => {
-            const lines: ParsedLine[] = [fakeDirectories.join(' ')];
+            const lines: ParsedLine[] = [
+                routes.filter((route) => route !== 'main').join(' '),
+            ];
 
             return [createResult(lines), createPrompt()];
         },

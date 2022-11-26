@@ -178,7 +178,6 @@ export function useScrollOnOverflow(
             cursorTopInPixels + CELL_HEIGHT > terminalHeight
         ) {
             if (containerRef.current) {
-                console.log(cursorTopInPixels);
                 containerRef.current.scrollTop =
                     containerRef.current.scrollHeight;
             }

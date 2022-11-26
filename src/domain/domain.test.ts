@@ -18,12 +18,10 @@ describe('domain.ts', () => {
         expect(createInitialTerminal()).toMatchObject({
             rows: [
                 {
-                    index: 0,
                     content: {
                         line: {
                             content: [
                                 {
-                                    id: '1',
                                     data: '',
                                 },
                             ],

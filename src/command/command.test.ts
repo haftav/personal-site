@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { Command, isResult, isPrompt, Result, routes } from '../domain';
 import { useRouterStore } from '../router';
 import { resultToString } from '../utils';
-import { handleCommand, aboutMe, fakeDirectories } from './command';
+import { handleCommand, aboutMe } from './command';
 
 // probably not the cleanest way to test this
 const initialStoreState = useRouterStore.getState();
@@ -66,7 +66,7 @@ describe('Handles CLI commands correctly', () => {
         expect(isPrompt(prompt)).toBeTruthy();
 
         expect(resultToString(result as Result)).toBe(
-            fakeDirectories.join(' ')
+            routes.filter((route) => route !== 'main').join(' ')
         );
     });
 

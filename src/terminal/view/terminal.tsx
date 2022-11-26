@@ -1,13 +1,7 @@
 import * as React from 'react';
-import {
-    TerminalRow,
-    Result,
-    Prompt,
-    Char,
-    getPrompt,
-    isPrompt,
-} from '../../domain';
+import { TerminalRow, Result, Prompt, Char, isPrompt } from '../../domain';
 import { useRouterStore, router } from '../../router';
+import { Button } from '../../ui';
 import { useStore } from '../store';
 import { CELL_HEIGHT, CELL_WIDTH } from './constants';
 
@@ -27,8 +21,6 @@ export const TerminalView = () => {
             return <AboutMe />;
         case 'work':
             return <Work />;
-        case 'skills':
-            return <Skills />;
         case 'blog':
             return <Blog />;
         default:
@@ -169,27 +161,24 @@ const Char = ({ char }: { char: Char }) => {
 
 const AboutMe = () => {
     return (
-        <div>
+        <div style={{ padding: 24 }}>
             <div>
-                <button onClick={() => router.navigate('main')}>
+                <Button onClick={() => router.navigate('main')}>
                     {'<<'} Back
-                </button>
+                </Button>
             </div>
-            <h1>About me</h1>
-        </div>
-    );
-};
-
-const Skills = () => {
-    return (
-        <div>
-            <div>
-                <button onClick={() => router.navigate('main')}>
-                    {'<<'} Back
-                </button>
-            </div>
-
-            <h1>Skills</h1>
+            <h1 style={{ padding: '16px 0px' }}>About me</h1>
+            <p style={{ lineHeight: 1.5, marginBottom: 16 }}>
+                Hi! I’m Tav. I love building software of any kind, especially
+                web applications. My professional career began at Overstock,
+                where I worked on customer-facing features like the sitewide
+                header and footer, as well as various internal tools. I now work
+                at Sliderule, where I’m helping build a modern rules engine +
+                workflow automation tool to simplify the process of creating,
+                approving and deploying backend logic.
+            </p>
+            <p>---</p>
+            <p>type q or enter to exit</p>
         </div>
     );
 };
