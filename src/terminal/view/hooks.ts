@@ -60,7 +60,7 @@ export function useHandleKeyPress() {
     const updatePrompt = useUpdatePrompt();
     const removeCharacter = useRemoveCharacter();
     const submitPrompt = useSubmitPrompt();
-    const cursorMovement = useMoveCursor();
+    const moveCursor = useMoveCursor();
 
     const listener: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
         const key = e.key.toLowerCase();
@@ -71,12 +71,12 @@ export function useHandleKeyPress() {
         const isArrowRight = key === 'arrowright';
 
         if (isArrowLeft) {
-            cursorMovement.moveLeft();
+            moveCursor('left');
             return;
         }
 
         if (isArrowRight) {
-            cursorMovement.moveRight();
+            moveCursor('right');
             return;
         }
 

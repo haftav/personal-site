@@ -6,7 +6,12 @@ import { parser } from '../parser';
 import { commandHandler } from '../command';
 import { useStore } from './store';
 
-import { removeCharacter, submitPrompt, updatePrompt } from './terminal.app';
+import {
+    removeCharacter,
+    submitPrompt,
+    updatePrompt,
+    moveCursor,
+} from './terminal.app';
 
 export function useUpdatePrompt() {
     const store = useStore();
@@ -40,10 +45,14 @@ export function useSubmitPrompt() {
 }
 
 export function useMoveCursor() {
-    const moveCursor = useStore((store) => store.moveCursor);
+    const store = useStore(
+        (store) => ({
+            moveCursor: store.moveCursor,
+            cursor: store.cursor,
+            terminal: store.terminal,
+        }),
+        shallow
+    );
 
-    const moveLeft = () => moveCursor('left');
-    const moveRight = () => moveCursor('right');
-
-    return { moveLeft, moveRight };
+    return (direction: 'left' | 'right') => moveCursor(direction, { store });
 }

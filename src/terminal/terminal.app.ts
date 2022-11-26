@@ -86,9 +86,23 @@ export const removeCharacter = (deps: {
 
 export const moveCursor = (
     direction: 'left' | 'right',
-    deps: { store: Pick<Store, 'moveCursor'> }
+    deps: { store: Pick<Store, 'moveCursor' | 'cursor' | 'terminal'> }
 ) => {
     const { store } = deps;
+
+    const prompt = getPrompt(store.terminal);
+    const cursorPosition = store.cursor.position;
+    const totalPromptLength = prompt.line.content.length;
+
+    if (direction === 'left') {
+        if (cursorPosition.column === 0) {
+            return;
+        }
+    } else {
+        if (cursorPosition.column >= totalPromptLength - 1) {
+            return;
+        }
+    }
 
     store.moveCursor(direction);
 };
