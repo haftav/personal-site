@@ -7,6 +7,7 @@ import {
     useUpdatePrompt,
     useRemoveCharacter,
     useSubmitPrompt,
+    useMoveCursor,
 } from '../terminal.impl';
 
 interface Dimensions {
@@ -59,12 +60,25 @@ export function useHandleKeyPress() {
     const updatePrompt = useUpdatePrompt();
     const removeCharacter = useRemoveCharacter();
     const submitPrompt = useSubmitPrompt();
+    const cursorMovement = useMoveCursor();
 
     const listener: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
         const key = e.key.toLowerCase();
 
         const isEnter = key === 'enter';
         const isBackspace = key === 'backspace';
+        const isArrowLeft = key === 'arrowleft';
+        const isArrowRight = key === 'arrowright';
+
+        if (isArrowLeft) {
+            cursorMovement.moveLeft();
+            return;
+        }
+
+        if (isArrowRight) {
+            cursorMovement.moveRight();
+            return;
+        }
 
         if (isEnter) {
             submitPrompt();

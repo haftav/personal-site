@@ -81,4 +81,14 @@ export const useStore = create<Store>((set) => ({
                 setPrompt(prompt, state.terminal);
             })
         ),
+    moveCursor: (direction) =>
+        set(
+            produce<Store>((state) => {
+                if (direction === 'left') {
+                    state.cursor.position.column -= 1;
+                } else {
+                    state.cursor.position.column += 1;
+                }
+            })
+        ),
 }));

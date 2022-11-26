@@ -38,3 +38,12 @@ export function useSubmitPrompt() {
 
     return () => submitPrompt({ store, parser, commandHandler });
 }
+
+export function useMoveCursor() {
+    const moveCursor = useStore((store) => store.moveCursor);
+
+    const moveLeft = () => moveCursor('left');
+    const moveRight = () => moveCursor('right');
+
+    return { moveLeft, moveRight };
+}

@@ -17,6 +17,8 @@ import {
     Terminal,
 } from '../domain';
 
+type Direction = 'left' | 'right';
+
 export interface Store {
     terminal: Terminal;
     cursor: Cursor;
@@ -24,6 +26,7 @@ export interface Store {
     updatePrompt: (newChar: CharData, columnIndex: ColumnIndex) => void;
     addRow: (row: Result | Prompt) => void;
     removeCharacter: (columnIndex: ColumnIndex) => void;
+    moveCursor: (direction: Direction) => void;
 }
 
 interface Parser {
@@ -81,7 +84,14 @@ export const removeCharacter = (deps: {
     store.setCursorPosition(cursorPosition.column - 1);
 };
 
-export const moveCursor = () => {};
+export const moveCursor = (
+    direction: 'left' | 'right',
+    deps: { store: Pick<Store, 'moveCursor'> }
+) => {
+    const { store } = deps;
+
+    store.moveCursor(direction);
+};
 
 export const navigateBackwardInPromptHistory = () => {};
 
