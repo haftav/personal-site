@@ -1,3 +1,4 @@
+import * as React from 'react';
 import {
     TerminalRow,
     Result,
@@ -8,11 +9,15 @@ import {
 } from '../../domain';
 import { useRouterStore, router } from '../../router';
 import { useStore } from '../store';
+import { CELL_HEIGHT, CELL_WIDTH } from './constants';
 
-import { useHandleKeyPress, useTerminalFocus, useTerminalSize } from './hooks';
-
-const columnWidth = 10;
-const rowHeight = 20;
+import {
+    useHandleKeyPress,
+    useTerminalFocus,
+    useTerminalSize,
+    useCursorPixelPosition,
+    useScrollOnOverflow,
+} from './hooks';
 
 export const TerminalView = () => {
     const route = useRouterStore((state) => state.route);
@@ -32,14 +37,21 @@ export const TerminalView = () => {
 };
 
 export const Terminal = () => {
-    const { ref: terminalRef, width } = useTerminalSize();
+    const containerRef = React.useRef<HTMLDivElement>(null);
+
+    const { ref: terminalRef, width, height } = useTerminalSize();
     const { ref: hiddenInputRef, setFocus } = useTerminalFocus();
     const handleKeyPress = useHandleKeyPress();
+
+    const { left, top } = useCursorPixelPosition(width);
+
+    useScrollOnOverflow(containerRef, height, top);
 
     const rows = useStore((store) => store.terminal.rows);
 
     return (
         <div
+            ref={containerRef}
             style={{
                 position: 'absolute',
                 width: '100vw',
@@ -60,7 +72,7 @@ export const Terminal = () => {
                 {rows.map((row) => (
                     <Row row={row} key={row.id} />
                 ))}
-                <Cursor terminalWidth={width} />
+                <Cursor left={left} top={top} />
                 <input
                     ref={hiddenInputRef}
                     onKeyDown={handleKeyPress}
@@ -73,74 +85,19 @@ export const Terminal = () => {
     );
 };
 
-function calculateRowHeight(
-    row: TerminalRow,
-    terminalWidthInGridCells: number
-) {
-    const { content } = row;
-
-    if (isPrompt(content)) {
-        const prefixOffset = content.prefix.length;
-
-        const characters = content.line.content;
-        const numberOfCharactersInRow = characters.length;
-        const column = prefixOffset + numberOfCharactersInRow;
-
-        const heightInPixels =
-            rowHeight +
-            Math.floor(column / terminalWidthInGridCells) * rowHeight;
-
-        return heightInPixels;
-    } else {
-        // iterate through all rows in each result, adding up heights
-        return content.lines.reduce((accum, line) => {
-            const characters = line.content;
-            const column = characters.length;
-
-            const heightInPixels =
-                rowHeight +
-                Math.floor(column / terminalWidthInGridCells) * rowHeight;
-
-            return accum + heightInPixels;
-        }, 0);
-    }
-}
-
 interface CursorProps {
-    terminalWidth: number;
+    left: number;
+    top: number;
 }
 
 export const Cursor = (props: CursorProps) => {
-    const { terminalWidth } = props;
-
-    const position = useStore((store) => store.cursor.position);
-    const prompt = useStore((store) => getPrompt(store.terminal));
-    const rows = useStore((store) => store.terminal.rows);
-
-    const prefixOffset = prompt.prefix.length;
-
-    const column = position.column + prefixOffset;
-
-    const terminalWidthInGridCells = Math.floor(terminalWidth / columnWidth);
-
-    const heightOfAllRowsExceptLastInPixels = rows
-        .slice(0, rows.length - 1)
-        .reduce(
-            (accum, curr) =>
-                accum + calculateRowHeight(curr, terminalWidthInGridCells),
-            0
-        );
-
-    const left = (column % terminalWidthInGridCells) * columnWidth;
-    const currentRowTop =
-        Math.floor(column / terminalWidthInGridCells) * rowHeight;
-    const top = heightOfAllRowsExceptLastInPixels + currentRowTop;
+    const { left, top } = props;
 
     return (
         <div
             style={{
-                width: columnWidth,
-                height: rowHeight,
+                width: CELL_WIDTH,
+                height: CELL_HEIGHT,
                 position: 'absolute',
                 top: top,
                 left,
@@ -182,7 +139,7 @@ export const PromptRow = ({ prompt }: { prompt: Prompt }) => {
                     key={index}
                     style={{
                         display: 'inline-block',
-                        width: columnWidth,
+                        width: CELL_WIDTH,
                         lineHeight: '20px',
                     }}
                 >
@@ -201,7 +158,7 @@ const Char = ({ char }: { char: Char }) => {
         <span
             style={{
                 display: 'inline-block',
-                width: columnWidth,
+                width: CELL_WIDTH,
                 lineHeight: '20px',
             }}
         >
