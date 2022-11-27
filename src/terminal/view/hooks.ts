@@ -9,6 +9,7 @@ import {
     useSubmitPrompt,
     useMoveCursor,
 } from '../terminal.impl';
+import { useRouterStore } from '../../router';
 
 interface Dimensions {
     width: number;
@@ -63,6 +64,7 @@ export function useHandleKeyPress() {
     const moveCursor = useMoveCursor();
 
     const listener: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
+        e.stopPropagation();
         const key = e.key.toLowerCase();
 
         const isEnter = key === 'enter';
@@ -98,6 +100,28 @@ export function useHandleKeyPress() {
     };
 
     return listener;
+}
+
+export function useExitToMain() {
+    const navigate = useRouterStore((store) => store.actions.navigate);
+
+    React.useEffect(() => {
+        const listener = (e: KeyboardEvent) => {
+            const key = e.key.toLowerCase();
+
+            const isEnter = key === 'enter';
+
+            if (isEnter || e.key === 'q') {
+                navigate('main');
+            }
+        };
+
+        document.addEventListener('keydown', listener);
+
+        return () => {
+            document.removeEventListener('keydown', listener);
+        };
+    }, [navigate]);
 }
 
 export function useTerminalFocus() {

@@ -1,0 +1,16 @@
+.list {
+    list-style-position: inside;
+}
+
+.item {
+    padding: 8px 0px;
+}
+
+.list > .item .item {
+    padding-left: 16px;
+}
+
+.heading {
+    font-size: 1.2rem;
+    font-weight: bold;
+}

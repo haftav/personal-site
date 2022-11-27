@@ -1,7 +1,8 @@
 import * as React from 'react';
+import { PageContainer } from '../../components';
 import { TerminalRow, Result, Prompt, Char, isPrompt } from '../../domain';
 import { useRouterStore, router } from '../../router';
-import { Button } from '../../ui';
+import { Button, List } from '../../ui';
 import { useStore } from '../store';
 import { CELL_HEIGHT, CELL_WIDTH } from './constants';
 
@@ -11,6 +12,7 @@ import {
     useTerminalSize,
     useCursorPixelPosition,
     useScrollOnOverflow,
+    useExitToMain,
 } from './hooks';
 
 export const TerminalView = () => {
@@ -68,7 +70,8 @@ export const Terminal = () => {
                 <input
                     ref={hiddenInputRef}
                     onKeyDown={handleKeyPress}
-                    value=""
+                    aria-hidden="true"
+                    defaultValue=""
                     style={{ width: 0, height: 0, border: 'none' }}
                     autoCapitalize="none"
                 />
@@ -160,52 +163,109 @@ const Char = ({ char }: { char: Char }) => {
 };
 
 const AboutMe = () => {
+    useExitToMain();
+
     return (
-        <div style={{ padding: 24 }}>
-            <div>
-                <Button onClick={() => router.navigate('main')}>
-                    {'<<'} Back
-                </Button>
-            </div>
-            <h1 style={{ padding: '16px 0px' }}>About me</h1>
+        <PageContainer title="About me">
             <p style={{ lineHeight: 1.5, marginBottom: 16 }}>
                 Hi! I’m Tav. I love building software of any kind, especially
-                web applications. My professional career began at Overstock,
-                where I worked on customer-facing features like the sitewide
-                header and footer, as well as various internal tools. I now work
-                at Sliderule, where I’m helping build a modern rules engine +
-                workflow automation tool to simplify the process of creating,
-                approving and deploying backend logic.
+                web applications. I currently work at Sliderule, where I’m
+                helping build a modern rules engine + workflow automation tool
+                to simplify the process of creating, approving and deploying
+                backend logic.
             </p>
-            <p>---</p>
-            <p>type q or enter to exit</p>
-        </div>
+        </PageContainer>
     );
 };
 
 const Work = () => {
-    return (
-        <div>
-            <div>
-                <button onClick={() => router.navigate('main')}>
-                    {'<<'} Back
-                </button>
-            </div>
+    useExitToMain();
 
-            <h1>Work</h1>
-        </div>
+    return (
+        <PageContainer title="Work">
+            <List>
+                <List.Item>
+                    <List.Heading>
+                        Lead frontend engineer - <i>Sliderule</i>
+                    </List.Heading>
+                    <List>
+                        <List.Item>
+                            Currently leading frontend development of the
+                            Sliderule web app, taking on responsibilities
+                            ranging from frontend architectural decisions,
+                            day-to-day feature work + prioritization, running
+                            interviews, and helping build team culture
+                        </List.Item>
+                    </List>
+                </List.Item>
+                <List.Item>
+                    <List.Heading>
+                        Contract software engineer - <i>FarmRaise</i>
+                    </List.Heading>
+                    <List>
+                        <List.Item>
+                            Planned and implemented command-line PDF generation
+                            tool. Used Python to parse CSV data and output
+                            completed PDF forms.
+                        </List.Item>
+                    </List>
+                </List.Item>
+                <List.Item>
+                    <List.Heading>
+                        Frontend developer - <i>PurposeWorks</i>
+                    </List.Heading>
+                    <List>
+                        <List.Item>
+                            Implemented various features and enhancements on the
+                            PurposeWorks client using React/TypeScript
+                        </List.Item>
+                        <List.Item>
+                            Handled global application state and data fetching
+                            with Redux action creators, selectors, and reducers
+                        </List.Item>
+                        <List.Item>
+                            Integrated Google Analytics into client-side code to
+                            gather user interaction data
+                        </List.Item>
+                    </List>
+                </List.Item>
+                <List.Item>
+                    <List.Heading>
+                        Frontend developer - <i>Overstock</i>
+                    </List.Heading>
+                    <List>
+                        <List.Item>
+                            Maintained various customer-facing and internal
+                            frontend React applications, Express rendering
+                            services, and NodeJS/Express APIs
+                        </List.Item>
+                        <List.Item>
+                            Developed new features for customer-facing
+                            applications such as sitewide header, sales pages,
+                            and homepage carousel
+                        </List.Item>
+                        <List.Item>
+                            Architected and implemented overhaul for sitewide
+                            search input to improve accessibility and overall
+                            functionality. Improved and developed features for
+                            internal applications, including company-wide CMS
+                            and web performance dashboard
+                        </List.Item>
+                        <List.Item>
+                            Unit-tested updates to reduce issues and improve
+                            code stability. Performed bug fixes, monitored
+                            application health, and assisted in deployment
+                            process
+                        </List.Item>
+                    </List>
+                </List.Item>
+            </List>
+        </PageContainer>
     );
 };
 
 const Blog = () => {
-    return (
-        <div>
-            <div>
-                <button onClick={() => router.navigate('main')}>
-                    {'<<'} Back
-                </button>
-            </div>
-            <h1>Blog</h1>
-        </div>
-    );
+    useExitToMain();
+
+    return <PageContainer title="Blog"></PageContainer>;
 };

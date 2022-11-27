@@ -21,7 +21,7 @@ export const handleCommand = (command: Command): Array<Prompt | Result> => {
 };
 
 function commandFactory(command: Command): CommandHandler {
-    if (command.name === 'help') {
+    if (command.name === 'help' || command.name === 'man') {
         return createHelpHandler();
     }
     if (command.name === 'pwd') {
@@ -36,6 +36,8 @@ function commandFactory(command: Command): CommandHandler {
     if (command.name === 'whoami') {
         return createWhoamiHandler();
     }
+
+    // TODO: clear command
 
     return notFoundHandler;
 }
