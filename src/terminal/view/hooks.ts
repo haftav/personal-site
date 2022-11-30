@@ -152,7 +152,7 @@ function calculateRowHeight(
 
         const characters = content.line.content;
         const numberOfCharactersInRow = characters.length;
-        const column = prefixOffset + numberOfCharactersInRow;
+        const column = prefixOffset + numberOfCharactersInRow - 1;
 
         const heightInPixels =
             CELL_HEIGHT +
@@ -163,7 +163,7 @@ function calculateRowHeight(
         // iterate through all rows in each result, adding up heights
         return content.lines.reduce((accum, line) => {
             const characters = line.content;
-            const column = characters.length;
+            const column = characters.length - 1;
 
             const heightInPixels =
                 CELL_HEIGHT +
