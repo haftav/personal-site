@@ -41,6 +41,7 @@ export const Terminal = () => {
     useScrollOnOverflow(containerRef, height, top);
 
     const rows = useStore((store) => store.terminal.rows);
+    const rowsLength = rows.length;
 
     return (
         <div
@@ -62,8 +63,12 @@ export const Terminal = () => {
                 ref={terminalRef}
                 onClick={setFocus}
             >
-                {rows.map((row) => (
-                    <Row row={row} key={row.id} />
+                {rows.map((row, index) => (
+                    <Row
+                        row={row}
+                        key={row.id}
+                        isLastRow={index === rowsLength - 1}
+                    />
                 ))}
                 <Cursor left={left} top={top} />
                 <input
@@ -96,16 +101,23 @@ export const Cursor = (props: CursorProps) => {
                 top: top,
                 left,
                 backgroundColor: 'white',
+                zIndex: 1,
             }}
         />
     );
 };
 
-export const Row = ({ row }: { row: TerminalRow }) => {
+export const Row = ({
+    row,
+    isLastRow,
+}: {
+    row: TerminalRow;
+    isLastRow: boolean;
+}) => {
     const { content } = row;
 
     return isPrompt(content) ? (
-        <PromptRow prompt={content} />
+        <PromptRow prompt={content} isCurrentPrompt={isLastRow} />
     ) : (
         <ResultRow result={content} />
     );
@@ -125,7 +137,15 @@ export const ResultRow = ({ result }: { result: Result }) => {
     );
 };
 
-export const PromptRow = ({ prompt }: { prompt: Prompt }) => {
+export const PromptRow = ({
+    prompt,
+    isCurrentPrompt,
+}: {
+    prompt: Prompt;
+    isCurrentPrompt?: boolean;
+}) => {
+    const cursorPosition = useStore((store) => store.cursor.position);
+
     return (
         <div>
             {prompt.prefix.split('').map((char, index) => (
@@ -140,17 +160,32 @@ export const PromptRow = ({ prompt }: { prompt: Prompt }) => {
                     {char}
                 </span>
             ))}
-            {prompt.line.content.map((char) => (
-                <Char char={char} key={char.id} />
+            {prompt.line.content.map((char, index) => (
+                <Char
+                    char={char}
+                    key={char.id}
+                    isUnderCursor={
+                        isCurrentPrompt && cursorPosition.column === index
+                    }
+                />
             ))}
         </div>
     );
 };
 
-const Char = ({ char }: { char: Char }) => {
+const Char = ({
+    char,
+    isUnderCursor,
+}: {
+    char: Char;
+    isUnderCursor?: boolean;
+}) => {
     return (
         <span
             style={{
+                position: 'relative',
+                zIndex: isUnderCursor ? 2 : 1,
+                color: isUnderCursor ? 'black' : 'white',
                 display: 'inline-block',
                 width: CELL_WIDTH,
                 lineHeight: '20px',

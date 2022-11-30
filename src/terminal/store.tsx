@@ -9,6 +9,7 @@ import {
     getPrompt,
     isResult,
     setPrompt,
+    createChar,
 } from '../domain';
 import { createId } from '../utils';
 import type { Store } from './terminal.app';
@@ -32,10 +33,7 @@ export const useStore = create<Store>((set) => ({
             produce<Store>((state) => {
                 const prompt = getPrompt(state.terminal);
 
-                prompt.line.content.splice(columnIndex, 0, {
-                    id: createId(),
-                    data: newChar,
-                });
+                prompt.line.content.splice(columnIndex, 0, createChar(newChar));
 
                 setPrompt(prompt, state.terminal);
             })

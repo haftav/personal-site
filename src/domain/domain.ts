@@ -85,7 +85,7 @@ export function createResult(parsedLines: ParsedLine[]): Result {
     };
 }
 
-export function createChar(char: string = '') {
+export function createChar(char: string = ''): Char {
     return {
         id: createId(),
         data: char,
