@@ -1,8 +1,12 @@
 .button {
+    font-size: 14px;
+    display: inline-block;
     padding: 8px 16px;
     background-color: black;
     color: white;
     border: 1px solid white;
+    font-family: 'Menlo';
+    text-decoration: none;
 }
 
 .button:hover {

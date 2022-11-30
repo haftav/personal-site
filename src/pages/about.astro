@@ -1,8 +1,9 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import { About } from '../components';
+import Page from '../layouts/Page.astro';
+import { About, PageHeader } from '../components';
 ---
 
-<Layout title="thafner - about">
+<Page title="thafner - about">
+    <PageHeader>About me</PageHeader>
     <About />
-</Layout>
+</Page>

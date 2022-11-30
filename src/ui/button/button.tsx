@@ -13,3 +13,17 @@ export const Button = (props: ButtonProps) => {
         </button>
     );
 };
+
+interface LinkButtonProps extends React.ComponentPropsWithoutRef<'a'> {
+    children: React.ReactNode;
+}
+
+export const LinkButton = (props: LinkButtonProps) => {
+    const { children, ...rest } = props;
+
+    return (
+        <a className={styles.button} {...rest}>
+            {children}
+        </a>
+    );
+};

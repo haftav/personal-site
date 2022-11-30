@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { About, PageContainer, Work } from '../../components';
+import { About, Container, Work } from '../../components';
 import { TerminalRow, Result, Prompt, Char, isPrompt } from '../../domain';
 import { useRouterStore } from '../../router';
 import { useStore } from '../store';
@@ -164,17 +164,29 @@ const Char = ({ char }: { char: Char }) => {
 const AboutView = () => {
     useExitToMain();
 
-    return <About />;
+    return (
+        <Container title="About me">
+            <About />
+        </Container>
+    );
 };
 
 const WorkView = () => {
     useExitToMain();
 
-    return <Work />;
+    return (
+        <Container title="Work">
+            <Work />
+        </Container>
+    );
 };
 
 const Blog = () => {
     useExitToMain();
 
-    return <PageContainer title="Blog"></PageContainer>;
+    return (
+        <Container title="Blog">
+            <p>Coming soon...</p>
+        </Container>
+    );
 };

@@ -1,9 +1,8 @@
 import { List } from '../ui';
-import { PageContainer } from './page-container';
 
 export const Work = () => {
     return (
-        <PageContainer title="Work">
+        <>
             <List>
                 <List.Item>
                     <List.Heading>
@@ -81,6 +80,6 @@ export const Work = () => {
                     </List>
                 </List.Item>
             </List>
-        </PageContainer>
+        </>
     );
 };

@@ -1,16 +1,11 @@
 import { router } from '../router';
-import { Button } from '../ui';
-
-interface PageContainerProps {
-    title: string;
-    children: React.ReactNode;
-}
+import { Button, LinkButton } from '../ui';
 
 interface HeaderProps {
     children: React.ReactNode;
 }
 
-const Header = (props: HeaderProps) => {
+export const Header = (props: HeaderProps) => {
     const { children } = props;
     return (
         <>
@@ -18,6 +13,19 @@ const Header = (props: HeaderProps) => {
                 <Button onClick={() => router.navigate('main')}>
                     {'<<'} Back
                 </Button>
+            </div>
+            <h1 style={{ paddingBottom: 16 }}>{children}</h1>
+        </>
+    );
+};
+
+export const PageHeader = (props: HeaderProps) => {
+    const { children } = props;
+
+    return (
+        <>
+            <div style={{ paddingBottom: 16 }}>
+                <LinkButton href="/contents">{'<<'} Back</LinkButton>
             </div>
             <h1 style={{ paddingBottom: 16 }}>{children}</h1>
         </>
@@ -33,7 +41,12 @@ const Footer = () => {
     );
 };
 
-export const PageContainer = (props: PageContainerProps) => {
+interface ContainerProps {
+    title: string;
+    children: React.ReactNode;
+}
+
+export const Container = (props: ContainerProps) => {
     const { children, title } = props;
 
     return (

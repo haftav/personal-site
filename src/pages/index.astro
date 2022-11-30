@@ -1,20 +1,9 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import Terminal from '../layouts/Terminal.astro';
 
 import { TerminalView } from '../terminal/view';
 ---
 
-<Layout title="thafner">
-    <main>
-        <TerminalView client:only />
-    </main>
-</Layout>
-
-<style>
-    main {
-        width: 100%;
-        height: 100vh;
-        background-color: black;
-        color: white;
-    }
-</style>
+<Terminal>
+    <TerminalView client:only />
+</Terminal>
