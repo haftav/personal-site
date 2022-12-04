@@ -13,6 +13,7 @@ import {
     useScrollOnOverflow,
     useExitToMain,
 } from './hooks';
+import { Tabs } from './tabs';
 
 export const TerminalView = () => {
     const route = useRouterStore((state) => state.route);
@@ -45,41 +46,63 @@ export const Terminal = () => {
 
     return (
         <div
-            ref={containerRef}
             style={{
                 position: 'absolute',
+                overflow: 'hidden',
                 width: '100vw',
                 height: '100vh',
-                padding: '8px',
-                overflow: 'scroll',
+                display: 'flex',
             }}
         >
             <div
+                ref={containerRef}
                 style={{
-                    position: 'relative',
-                    width: '100%',
+                    overflow: 'scroll',
+                    flex: 1,
                     height: '100vh',
+                    padding: '8px',
+                    display: 'flex',
                 }}
-                ref={terminalRef}
-                onClick={setFocus}
             >
-                {rows.map((row, index) => (
-                    <Row
-                        row={row}
-                        key={row.id}
-                        isLastRow={index === rowsLength - 1}
+                <div
+                    style={{
+                        position: 'relative',
+                        width: '100%',
+                        height: '100vh',
+                    }}
+                    ref={terminalRef}
+                    onClick={setFocus}
+                >
+                    {rows.map((row, index) => (
+                        <Row
+                            row={row}
+                            key={row.id}
+                            isLastRow={index === rowsLength - 1}
+                        />
+                    ))}
+                    <Cursor left={left} top={top} />
+                    <input
+                        ref={hiddenInputRef}
+                        onKeyDown={handleKeyPress}
+                        aria-hidden="true"
+                        defaultValue=""
+                        style={{ width: 0, height: 0, border: 'none' }}
+                        autoCapitalize="none"
                     />
-                ))}
-                <Cursor left={left} top={top} />
-                <input
-                    ref={hiddenInputRef}
-                    onKeyDown={handleKeyPress}
-                    aria-hidden="true"
-                    defaultValue=""
-                    style={{ width: 0, height: 0, border: 'none' }}
-                    autoCapitalize="none"
-                />
+                </div>
             </div>
+            <Tabs>
+                <Tabs.TopSection>
+                    <Tabs.Link to="https://github.com/haftav">github</Tabs.Link>
+                    <Tabs.Link to="https://www.linkedin.com/in/tavhafner/">
+                        linkedin
+                    </Tabs.Link>
+                    <Tabs.Link to="mailto:tavhafnerdev@gmail.com">
+                        email
+                    </Tabs.Link>
+                </Tabs.TopSection>
+                <Tabs.TopSection>Bottom</Tabs.TopSection>
+            </Tabs>
         </div>
     );
 };
