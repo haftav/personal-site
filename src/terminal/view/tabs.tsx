@@ -48,7 +48,7 @@ interface LinkProps extends React.ComponentPropsWithoutRef<'a'> {
 }
 
 export const Link = (props: LinkProps) => {
-    const { to, children } = props;
+    const { to, children, ...rest } = props;
     return (
         <a
             style={{
@@ -57,6 +57,7 @@ export const Link = (props: LinkProps) => {
                 padding: '0px 0px 16px',
             }}
             href={to}
+            {...rest}
         >
             {children}
         </a>
