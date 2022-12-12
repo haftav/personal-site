@@ -93,15 +93,27 @@ export const Terminal = () => {
             </div>
             <Tabs>
                 <Tabs.TopSection>
-                    <Tabs.Link to="https://github.com/haftav">github</Tabs.Link>
-                    <Tabs.Link to="https://www.linkedin.com/in/tavhafner/">
+                    <Tabs.Link
+                        to="https://github.com/haftav"
+                        target="_blank"
+                        rel="noreferrer"
+                    >
+                        github
+                    </Tabs.Link>
+                    <Tabs.Link
+                        to="https://www.linkedin.com/in/tavhafner/"
+                        target="_blank"
+                        rel="noreferrer"
+                    >
                         linkedin
                     </Tabs.Link>
                     <Tabs.Link to="mailto:tavhafnerdev@gmail.com">
                         email
                     </Tabs.Link>
                 </Tabs.TopSection>
-                <Tabs.TopSection>Bottom</Tabs.TopSection>
+                <Tabs.BottomSection>
+                    <Tabs.Link to="/contents">default</Tabs.Link>
+                </Tabs.BottomSection>
             </Tabs>
         </div>
     );
@@ -146,7 +158,7 @@ export const Row = ({
     );
 };
 
-export const ResultRow = ({ result }: { result: Result }) => {
+export const ResultRow = React.memo(({ result }: { result: Result }) => {
     return (
         <div>
             {result.lines.map((line, index) => (
@@ -158,7 +170,7 @@ export const ResultRow = ({ result }: { result: Result }) => {
             ))}
         </div>
     );
-};
+});
 
 export const PromptRow = ({
     prompt,
@@ -196,28 +208,24 @@ export const PromptRow = ({
     );
 };
 
-const Char = ({
-    char,
-    isUnderCursor,
-}: {
-    char: Char;
-    isUnderCursor?: boolean;
-}) => {
-    return (
-        <span
-            style={{
-                position: 'relative',
-                zIndex: isUnderCursor ? 2 : 1,
-                color: isUnderCursor ? 'black' : 'white',
-                display: 'inline-block',
-                width: CELL_WIDTH,
-                lineHeight: '20px',
-            }}
-        >
-            {char.data}
-        </span>
-    );
-};
+const Char = React.memo(
+    ({ char, isUnderCursor }: { char: Char; isUnderCursor?: boolean }) => {
+        return (
+            <span
+                style={{
+                    position: 'relative',
+                    zIndex: isUnderCursor ? 2 : 1,
+                    color: isUnderCursor ? 'black' : 'white',
+                    display: 'inline-block',
+                    width: CELL_WIDTH,
+                    lineHeight: '20px',
+                }}
+            >
+                {char.data}
+            </span>
+        );
+    }
+);
 
 const AboutView = () => {
     useExitToMain();

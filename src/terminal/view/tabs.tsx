@@ -42,7 +42,7 @@ export const BottomSection = (props: BottomSectionProps) => {
     return <div>{children}</div>;
 };
 
-interface LinkProps {
+interface LinkProps extends React.ComponentPropsWithoutRef<'a'> {
     to: string;
     children: React.ReactNode;
 }
@@ -57,8 +57,6 @@ export const Link = (props: LinkProps) => {
                 padding: '0px 0px 16px',
             }}
             href={to}
-            target="_blank"
-            rel="noreferrer"
         >
             {children}
         </a>
